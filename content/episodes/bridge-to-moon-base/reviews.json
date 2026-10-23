@@ -1,0 +1,9 @@
+{
+  "content_version": "0.1.0",
+  "status": "draft",
+  "science_review": { "status": "pending", "reviewer": null },
+  "child_safety_review": { "status": "pending", "reviewer": null },
+  "accessibility_review": { "status": "pending", "reviewer": null },
+  "asset_verification": { "status": "pending", "verified_assets": 0 },
+  "publication_allowed": false
+}

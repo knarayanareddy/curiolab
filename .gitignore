@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+coverage/
+.gradle/
+local.properties
+.env
+.env.local
+.env.*.local
+!.env.example
+*.log
+.DS_Store
+# Private perception data and generated signed bundles stay outside Git.
+content/datasets/private/
+*.aab
+*.apk

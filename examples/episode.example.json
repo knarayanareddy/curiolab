@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "episode_id": "01000000000000000000000001",
+  "content_version": "0.1.0",
+  "title": "The Bridge to Moon Base — Draft Fixture",
+  "locale": "en-US",
+  "age_range": { "minimum": 7, "maximum": 11 },
+  "duration_estimate_seconds": 660,
+  "learning_objectives": [
+    {
+      "id": "lo_controlled_comparison",
+      "statement": "Compare two paper shapes while keeping the other tested conditions unchanged.",
+      "assessment_node_id": "node_reflection"
+    }
+  ],
+  "safety": {
+    "adult_required": true,
+    "camera_optional": true,
+    "remote_fallback": true,
+    "prohibited_actions": [
+      "Do not put coins or paper in the mouth.",
+      "Do not stand on furniture or throw materials."
+    ],
+    "reviewed": false
+  },
+  "materials": [
+    {
+      "material_id": "mat_paper",
+      "name": "Two identical sheets of paper",
+      "quantity": 2,
+      "required": true,
+      "safety_note": "Use ordinary paper on a stable low table."
+    },
+    {
+      "material_id": "mat_supports",
+      "name": "Two identical book supports",
+      "quantity": 2,
+      "required": true,
+      "safety_note": "Use stable supports of the same height."
+    },
+    {
+      "material_id": "mat_coins",
+      "name": "Identical coins selected by the adult",
+      "quantity": 30,
+      "required": true,
+      "safety_note": "Small objects require continuous adult supervision."
+    },
+    {
+      "material_id": "mat_calibration",
+      "name": "Printed CurioLab calibration mat",
+      "quantity": 1,
+      "required": false,
+      "safety_note": "Required only for camera-assisted counting."
+    }
+  ],
+  "assets": [
+    {
+      "asset_id": "asset_problem_scene",
+      "kind": "scene",
+      "uri": "content://episodes/bridge/scenes/problem.json",
+      "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    {
+      "asset_id": "asset_result_scene",
+      "kind": "scene",
+      "uri": "content://episodes/bridge/scenes/result.json",
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    {
+      "asset_id": "asset_lab_instructions",
+      "kind": "image",
+      "uri": "content://episodes/bridge/images/lab-instructions.png",
+      "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    {
+      "asset_id": "asset_lab_mat",
+      "kind": "lab_mat",
+      "uri": "content://episodes/bridge/lab-mat.pdf",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+    }
+  ],
+  "start_node_id": "node_problem",
+  "nodes": [
+    {
+      "id": "node_problem",
+      "type": "scene",
+      "scene_id": "scene_problem",
+      "dialogue_variant_ids": ["dialogue_problem_a"],
+      "next": "node_flat_prediction"
+    },
+    {
+      "id": "node_flat_prediction",
+      "type": "prediction",
+      "variable": "predictions.flat_winner",
+      "prompt": "Which paper shape do you predict will hold more coins?",
+      "options": ["flat", "folded", "same", "unsure"],
+      "next": "node_flat_lab"
+    },
+    {
+      "id": "node_flat_lab",
+      "type": "lab",
+      "lab_id": "paper_bridge_load",
+      "instruction_asset_id": "asset_lab_instructions",
+      "measurement": {
+        "key": "measurements.flat_load",
+        "kind": "integer_count",
+        "unit": "coins",
+        "minimum": 0,
+        "maximum": 30,
+        "source": "companion_cv",
+        "stable_ms": 500,
+        "confirmation_required": true,
+        "manual_fallback": true
+      },
+      "next": "node_flat_result"
+    },
+    {
+      "id": "node_flat_result",
+      "type": "scene",
+      "scene_id": "scene_flat_result",
+      "dialogue_variant_ids": ["dialogue_flat_result_a"],
+      "scene_parameters": [
+        { "name": "load_count", "variable": "measurements.flat_load" }
+      ],
+      "next": "node_folded_prediction"
+    },
+    {
+      "id": "node_folded_prediction",
+      "type": "prediction",
+      "variable": "predictions.folded_change",
+      "prompt": "What will change when only the paper shape changes?",
+      "options": ["more", "fewer", "same", "unsure"],
+      "next": "node_folded_lab"
+    },
+    {
+      "id": "node_folded_lab",
+      "type": "lab",
+      "lab_id": "paper_bridge_load",
+      "instruction_asset_id": "asset_lab_instructions",
+      "measurement": {
+        "key": "measurements.folded_load",
+        "kind": "integer_count",
+        "unit": "coins",
+        "minimum": 0,
+        "maximum": 30,
+        "source": "companion_cv",
+        "stable_ms": 500,
+        "confirmation_required": true,
+        "manual_fallback": true
+      },
+      "next": "node_comparison"
+    },
+    {
+      "id": "node_comparison",
+      "type": "branch",
+      "cases": [
+        {
+          "left": "measurements.folded_load",
+          "operator": "gt",
+          "right": "measurements.flat_load",
+          "next": "node_greater"
+        },
+        {
+          "left": "measurements.folded_load",
+          "operator": "lt",
+          "right": "measurements.flat_load",
+          "next": "node_lower"
+        }
+      ],
+      "default": "node_equal"
+    },
+    {
+      "id": "node_greater",
+      "type": "scene",
+      "scene_id": "scene_greater",
+      "dialogue_variant_ids": ["dialogue_greater_a"],
+      "next": "node_reflection"
+    },
+    {
+      "id": "node_lower",
+      "type": "scene",
+      "scene_id": "scene_lower",
+      "dialogue_variant_ids": ["dialogue_lower_a"],
+      "next": "node_reflection"
+    },
+    {
+      "id": "node_equal",
+      "type": "scene",
+      "scene_id": "scene_equal",
+      "dialogue_variant_ids": ["dialogue_equal_a"],
+      "next": "node_reflection"
+    },
+    {
+      "id": "node_reflection",
+      "type": "prediction",
+      "variable": "predictions.reflection",
+      "prompt": "What did this comparison suggest about the paper shapes you tested?",
+      "options": ["shape_can_matter", "not_sure"],
+      "next": "node_end"
+    },
+    {
+      "id": "node_end",
+      "type": "end",
+      "summary_scene_id": "scene_summary"
+    }
+  ],
+  "ai_policy": {
+    "live_hints_allowed": false,
+    "prompt_version": "hint_v1",
+    "fallback_hint_set": "hints_bridge_v1",
+    "max_words_per_hint": 45
+  },
+  "review": {
+    "status": "draft",
+    "science_reviewer": "",
+    "child_safety_reviewer": "",
+    "reviewed_at": "2026-10-23T12:00:00.000Z",
+    "graph_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

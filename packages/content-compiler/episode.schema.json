@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://specs.local/curiolab/episode.schema.json",
+  "title": "CurioLab Episode Experiment Graph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "episode_id", "content_version", "title", "locale", "age_range", "learning_objectives", "safety", "materials", "assets", "start_node_id", "nodes", "ai_policy", "review"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "episode_id": { "$ref": "#/$defs/ulid" },
+    "content_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "locale": { "const": "en-US" },
+    "age_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": { "type": "integer", "minimum": 7, "maximum": 11 },
+        "maximum": { "type": "integer", "minimum": 7, "maximum": 11 }
+      }
+    },
+    "duration_estimate_seconds": { "type": "integer", "minimum": 60, "maximum": 1800 },
+    "learning_objectives": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "statement", "assessment_node_id"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^lo_[a-z0-9_]+$" },
+          "statement": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "assessment_node_id": { "$ref": "#/$defs/nodeId" }
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["adult_required", "camera_optional", "remote_fallback", "prohibited_actions", "reviewed"],
+      "properties": {
+        "adult_required": { "const": true },
+        "camera_optional": { "const": true },
+        "remote_fallback": { "const": true },
+        "prohibited_actions": { "type": "array", "minItems": 1, "items": { "type": "string", "maxLength": 200 } },
+        "reviewed": { "type": "boolean" }
+      }
+    },
+    "materials": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["material_id", "name", "quantity", "required", "safety_note"],
+        "properties": {
+          "material_id": { "type": "string", "pattern": "^mat_[a-z0-9_]+$" },
+          "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "quantity": { "type": "integer", "minimum": 1, "maximum": 100 },
+          "required": { "type": "boolean" },
+          "safety_note": { "type": "string", "maxLength": 300 }
+        }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["asset_id", "kind", "uri", "sha256"],
+        "properties": {
+          "asset_id": { "type": "string", "pattern": "^asset_[a-z0-9_]+$" },
+          "kind": { "enum": ["scene", "image", "audio", "caption", "font", "lab_mat"] },
+          "uri": { "type": "string", "pattern": "^content://[a-zA-Z0-9_./-]+$" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        }
+      }
+    },
+    "start_node_id": { "$ref": "#/$defs/nodeId" },
+    "nodes": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/sceneNode" },
+          { "$ref": "#/$defs/predictionNode" },
+          { "$ref": "#/$defs/labNode" },
+          { "$ref": "#/$defs/branchNode" },
+          { "$ref": "#/$defs/endNode" }
+        ]
+      }
+    },
+    "ai_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["live_hints_allowed", "prompt_version", "fallback_hint_set", "max_words_per_hint"],
+      "properties": {
+        "live_hints_allowed": { "type": "boolean" },
+        "prompt_version": { "type": "string", "pattern": "^hint_v[0-9]+$" },
+        "fallback_hint_set": { "type": "string", "pattern": "^hints_[a-z0-9_]+$" },
+        "max_words_per_hint": { "type": "integer", "minimum": 5, "maximum": 60 }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "science_reviewer", "child_safety_reviewer", "reviewed_at", "graph_sha256"],
+      "properties": {
+        "status": { "enum": ["draft", "approved"] },
+        "science_reviewer": { "type": "string", "maxLength": 160 },
+        "child_safety_reviewer": { "type": "string", "maxLength": 160 },
+        "reviewed_at": { "$ref": "#/$defs/timestamp" },
+        "graph_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    }
+  },
+  "$defs": {
+    "ulid": { "type": "string", "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "nodeId": { "type": "string", "pattern": "^node_[a-z0-9_]+$" },
+    "sceneNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "scene_id", "dialogue_variant_ids", "next"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nodeId" },
+        "type": { "const": "scene" },
+        "scene_id": { "type": "string", "pattern": "^scene_[a-z0-9_]+$" },
+        "dialogue_variant_ids": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "scene_parameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "variable"],
+            "properties": {
+              "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+              "variable": { "type": "string", "pattern": "^(measurements|predictions)\\.[a-z][a-z0-9_]*$" }
+            }
+          }
+        },
+        "next": { "$ref": "#/$defs/nodeId" }
+      }
+    },
+    "predictionNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "variable", "prompt", "options", "next"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nodeId" },
+        "type": { "const": "prediction" },
+        "variable": { "type": "string", "pattern": "^predictions\\.[a-z][a-z0-9_]*$" },
+        "prompt": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "options": { "type": "array", "minItems": 2, "maxItems": 4, "items": { "type": "string", "maxLength": 160 } },
+        "next": { "$ref": "#/$defs/nodeId" }
+      }
+    },
+    "labNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "lab_id", "instruction_asset_id", "measurement", "next"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nodeId" },
+        "type": { "const": "lab" },
+        "lab_id": { "const": "paper_bridge_load" },
+        "instruction_asset_id": { "type": "string", "pattern": "^asset_[a-z0-9_]+$" },
+        "measurement": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["key", "kind", "unit", "minimum", "maximum", "source", "stable_ms", "confirmation_required", "manual_fallback"],
+          "properties": {
+            "key": { "type": "string", "pattern": "^measurements\\.(flat_load|folded_load)$" },
+            "kind": { "const": "integer_count" },
+            "unit": { "const": "coins" },
+            "minimum": { "type": "integer", "minimum": 0, "maximum": 100 },
+            "maximum": { "type": "integer", "minimum": 1, "maximum": 100 },
+            "source": { "enum": ["companion_cv", "manual_remote"] },
+            "stable_ms": { "const": 500 },
+            "confirmation_required": { "const": true },
+            "manual_fallback": { "const": true }
+          }
+        },
+        "next": { "$ref": "#/$defs/nodeId" }
+      }
+    },
+    "branchNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "cases", "default"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nodeId" },
+        "type": { "const": "branch" },
+        "cases": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["left", "operator", "right", "next"],
+            "properties": {
+              "left": { "type": "string", "pattern": "^(measurements|predictions)\\.[a-z][a-z0-9_]*$" },
+              "operator": { "enum": ["eq", "neq", "gt", "gte", "lt", "lte"] },
+              "right": {
+                "anyOf": [
+                  { "type": "number" },
+                  { "type": "boolean" },
+                  { "type": "string", "maxLength": 160 }
+                ]
+              },
+              "next": { "$ref": "#/$defs/nodeId" }
+            }
+          }
+        },
+        "default": { "$ref": "#/$defs/nodeId" }
+      }
+    },
+    "endNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "summary_scene_id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nodeId" },
+        "type": { "const": "end" },
+        "summary_scene_id": { "type": "string", "pattern": "^scene_[a-z0-9_]+$" }
+      }
+    }
+  }
+}

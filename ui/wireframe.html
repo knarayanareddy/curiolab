@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Static low-fidelity CurioLab Fire TV and Android companion wireframes with fictional episode data.">
+  <title>CurioLab — Low-fidelity wireframes</title>
+  <link rel="stylesheet" href="../specs/ui/wireframes.css">
+  <link rel="stylesheet" href="./theme.css">
+  <script src="../specs/ui/wireframes.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to wireframes</a>
+  <svg class="sprite" aria-hidden="true">
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2.8 20h18.4L12 3Z"/><path d="M12 9v4m0 3h.01"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M3 7h4l2-3h6l2 3h4v13H3V7Z"/><circle cx="12" cy="13" r="4"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-5-5 5 5-5 5"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 8a7 7 0 0 1 12-1l2 5M4 12l2 5a7 7 0 0 0 12-1"/></symbol>
+  </svg>
+  <header class="review-header"><div class="review-header__inner"><div class="review-brand"><strong>CurioLab</strong><span>UI specification / 02</span></div><nav class="review-links" aria-label="Document links"><a href="../../../specs/ui/index.html">All projects</a><a href="./DESIGN.md">Design</a><a href="./tokens.json">Tokens</a><a href="./WIREFRAMES.md">Screen notes</a></nav></div></header>
+  <main class="review-main" id="main">
+    <div class="review-intro"><span class="eyebrow">Storybook laboratory · Fire TV + Android companion</span><h1>A mission worth measuring.</h1><p>Six low-fidelity screens keep the story cinematic and the experiment exact. Family-confirmed values—not camera guesses—drive comparison scenes.</p><div class="prototype-notice"><strong>Static review artifact.</strong> Episodes, pairing codes, and counts are fictional. The QR pattern is decorative; no camera, inference, or Fire OS runtime is active.</div></div>
+    <nav aria-label="CurioLab screens"><ul class="screen-nav"><li><a href="#story">01 · Story</a></li><li><a href="#lab">02 · Lab</a></li><li><a href="#measurement">03 · Measurement</a></li><li><a href="#comparison">04 · Comparison</a></li><li><a href="#setup">05 · Pairing</a></li><li><a href="#companion">06 · Companion</a></li></ul></nav>
+
+    <section class="wireframe" id="story" aria-labelledby="story-title">
+      <div class="screen-heading"><div><span class="screen-number">SCREEN 01 / FIRE TV 1080P</span><h2 id="story-title">Story and prediction</h2></div><p>Prediction is a commitment to investigate, not a right/wrong quiz.</p></div>
+      <div class="tv-frame"><div class="tv-stage tv-stage--scene">
+        <header class="tv-topbar"><div><span class="eyebrow">CurioLab · Episode 03</span><h3>The Bridge of Twelve</h3><p>Mission: help Mira cross the moon-base channel</p></div><span class="status status--success"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-check"/></svg>Downloaded · available offline</span></header>
+        <div class="tv-content">
+          <div class="tv-scene" role="img" aria-label="Wireframe scene: a small lunar engineer stands beside a channel and a stack of crates on a moon base"><div class="moon" aria-hidden="true"></div><span class="scene-label">Authored scene placeholder · moon-base channel + crate supply</span></div>
+          <section class="tv-panel"><span class="eyebrow">Make a prediction</span><h4>How many crates will hold 12 coins?</h4><p>Choose an idea before we test. You can change your mind after the experiment.</p><button class="tv-button tv-choice tv-button--focus" type="button" data-static><span>A · 3 crates</span><span class="focus-note">← Focused</span></button><button class="tv-button tv-choice" type="button" data-static>B · 4 crates</button></section>
+        </div>
+        <div class="tv-caption">“Every good mission starts with a guess we can test.” <span class="muted">— Mira</span></div>
+        <div class="tv-action-rail" style="margin-top:16px"><span>Remote: ↑ ↓ to choose · Select to continue</span><div class="cluster"><button class="tv-button" type="button" data-static>Replay narration</button><a class="tv-button tv-button--primary" href="#lab">Continue to lab <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-arrow"/></svg></a></div></div>
+      </div></div>
+      <details class="annotations" open><summary>Interaction and state annotations</summary><ul><li>Focused choices use outline, marker, and text—not scale alone.</li><li>Dialogue is captioned and essential visual action has audio description.</li><li>Reduced motion replaces the scene transition with a static cut.</li></ul></details>
+    </section>
+
+    <section class="wireframe" id="lab" aria-labelledby="lab-title">
+      <div class="screen-heading"><div><span class="screen-number">SCREEN 02 / FIRE TV 1080P</span><h2 id="lab-title">Lab instruction</h2></div><p>Three steps, explicit adult safety, and an always-available remote-only route.</p></div>
+      <div class="tv-frame"><div class="tv-stage tv-stage--scene">
+        <header class="tv-topbar"><div><span class="eyebrow">Experiment 1 of 2</span><h3>Build your coin bridge</h3><p>Adult setup · about 6 minutes</p></div><span class="status status--info"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-camera"/></svg>Companion not paired · optional</span></header>
+        <div class="tv-content">
+          <div class="tv-scene" role="img" aria-label="Wireframe scene: a paper laboratory bench with a mat, twelve coins, and four crates"><span class="scene-label">Authored lab-bench placeholder · materials are also listed in text</span></div>
+          <section class="tv-panel"><h4>Together at the table</h4><ol class="step-list"><li>Place the LabMat on a flat, well-lit surface.</li><li>Put 12 coins beside—not on—the mat.</li><li>Build a bridge with crates, then add coins one at a time.</li></ol><div class="divider"></div><p class="small"><strong>Materials:</strong> printed LabMat, 12 coins, 4 small crates or blocks.</p><div class="cluster"><button class="tv-button" type="button" data-static>Adult safety</button><a class="tv-button" href="#setup">Pair companion</a></div></section>
+        </div>
+        <div class="banner"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-info"/></svg><div><strong>Camera optional</strong><p>Count aloud or enter the result on TV. Pairing and camera permission are never required to finish the episode.</p></div></div>
+        <div class="tv-action-rail" style="margin-top:16px"><span>Remote: Back returns to prediction</span><div class="cluster"><button class="tv-button tv-button--focus" type="button" data-static>Use TV instead</button><a class="tv-button tv-button--primary" href="#measurement">Start observation</a></div></div>
+      </div></div>
+      <details class="annotations"><summary>Interaction and state annotations</summary><ul><li>Camera errors route to the same TV/manual measurement scene without resetting progress.</li><li>Safety details open in a sheet and return focus to the safety control.</li><li>Instruction text never depends on recognizing objects in the scene.</li></ul></details>
+    </section>
+
+    <section class="wireframe" id="measurement" aria-labelledby="measurement-title">
+      <div class="screen-heading"><div><span class="screen-number">SCREEN 03 / FIRE TV 1080P</span><h2 id="measurement-title">Family measurement confirmation</h2></div><p>A quiet scene makes observed, corrected, and confirmed values unambiguous.</p></div>
+      <div class="tv-frame"><div class="tv-stage tv-stage--scene">
+        <header class="tv-topbar"><div><span class="eyebrow">Trial 1 · Family review</span><h3>How many coins did the bridge hold?</h3><p>The camera observed 11; an adult corrected the count to 12.</p></div><span class="status status--warning"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg>Correction ready to confirm</span></header>
+        <div class="tv-content tv-content--even">
+          <section class="tv-panel" style="text-align:center"><span class="eyebrow">Family-confirmed value</span><div style="font-size:96px;font-weight:800;line-height:1.1" class="numeric">12</div><h4>coins</h4><p>Exact value used by the comparison scene</p></section>
+          <section class="tv-panel"><h4>Check the real bridge together</h4><dl class="definition-grid"><dt>Observed</dt><dd>11 coins · stopped 14:06</dd><dt>Correction</dt><dd>+1 by adult</dd><dt>Not yet confirmed</dt><dd>Comparison waits</dd></dl><div class="cluster" style="margin-top:24px"><button class="tv-button" type="button" data-static aria-label="− 1 — subtract one coin">− 1</button><button class="tv-button tv-button--focus" type="button" data-static aria-label="+ 1 — add one coin">+ 1</button><span class="focus-note">Focused: + 1</span></div><p class="small">Use the remote or companion to correct the value. The visual crate count is illustrative only.</p></section>
+        </div>
+        <div class="tv-caption">“We counted one more coin beside the crate. Our bridge held twelve.”</div>
+        <div class="tv-action-rail" style="margin-top:16px"><span>Nothing advances until the family confirms</span><div class="cluster"><button class="tv-button" type="button" data-static>Observe again</button><a class="tv-button tv-button--primary" href="#comparison"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-check"/></svg>Confirm 12 coins</a></div></div>
+      </div></div>
+      <details class="annotations"><summary>Interaction and state annotations</summary><ul><li>The displayed state is corrected but not yet confirmed.</li><li>Exact numbers remain textual even if the renderer caps repeated props.</li><li>Focus never defaults to reset or discard.</li></ul></details>
+    </section>
+
+    <section class="wireframe" id="comparison" aria-labelledby="comparison-title">
+      <div class="screen-heading"><div><span class="screen-number">SCREEN 04 / FIRE TV 1080P</span><h2 id="comparison-title">Two-trial comparison</h2></div><p>Only actual confirmed trials appear; conclusions stay scoped to this experiment.</p></div>
+      <div class="tv-frame"><div class="tv-stage tv-stage--scene">
+        <header class="tv-topbar"><div><span class="eyebrow">Our results</span><h3>What changed between our two trials?</h3><p>Both values were confirmed by the family</p></div><span class="status status--success"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-check"/></svg>2 actual trials</span></header>
+        <div class="tv-content tv-content--even">
+          <section class="tv-panel"><span class="eyebrow">Trial 1 · Striped scene markers</span><h4>8 coins · 3 crates</h4><div class="trend" role="img" aria-label="Trial 1 held 8 coins"><span style="height:66%"></span><span style="height:66%"></span><span style="height:66%"></span></div><p>Bridge lowered after the eighth coin.</p></section>
+          <section class="tv-panel"><span class="eyebrow">Trial 2 · Dotted scene markers</span><h4>12 coins · 4 crates</h4><div class="trend" role="img" aria-label="Trial 2 held 12 coins"><span style="height:96%"></span><span style="height:96%"></span><span style="height:96%"></span><span style="height:96%"></span></div><p>Bridge held through the twelfth coin.</p></section>
+        </div>
+        <div class="banner banner--success"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-info"/></svg><div><strong>In our two trials, 4 crates held 4 more coins than 3 crates.</strong><p>This is our result, not a universal rule for every bridge.</p></div></div>
+        <div class="tv-action-rail" style="margin-top:16px"><span>Reflection: What else could we change next time?</span><div class="cluster"><button class="tv-button tv-button--focus" type="button" data-static>Replay comparison</button><button class="tv-button tv-button--primary" type="button" data-static>Continue story</button></div></div>
+      </div></div>
+      <details class="annotations"><summary>Interaction and state annotations</summary><ul><li>Equal and lower outcomes use the same layout and neutral language.</li><li>Trial patterns and labels supplement color.</li><li>No predicted or missing trial is inserted into the comparison.</li></ul></details>
+    </section>
+
+    <section class="wireframe" id="setup" aria-labelledby="setup-title">
+      <div class="screen-heading"><div><span class="screen-number">SCREEN 05 / FIRE TV 1080P</span><h2 id="setup-title">Optional companion pairing</h2></div><p>Pairing is a convenience branch, never a gate in front of the experiment.</p></div>
+      <div class="tv-frame"><div class="tv-stage tv-stage--scene">
+        <header class="tv-topbar"><div><span class="eyebrow">Optional setup</span><h3>Use an Android companion</h3><p>Observe the LabMat and mark when a count is stable</p></div><span class="status status--neutral">No camera connected</span></header>
+        <div class="tv-content tv-content--even">
+          <section class="tv-panel"><h4>1 · Scan or enter this code</h4><div class="cluster" style="align-items:flex-start"><div class="qr-placeholder" aria-hidden="true"> <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div><div class="code">K7M4Q2</div><p class="small">Fictional code · expires in 5 minutes</p><p class="small">The QR shape is a nonfunctional wireframe placeholder.</p></div></div></section>
+          <section class="tv-panel"><h4>2 · Or keep playing on TV</h4><p>You do not need a phone, camera, or internet connection for this downloaded episode.</p><ul class="rule-list"><li>Count together and enter the value with the remote.</li><li>All story and comparison scenes remain available.</li><li>Pair later from the same lab screen.</li></ul><button class="tv-button tv-button--focus" type="button" data-static>Continue without camera</button></section>
+        </div>
+        <div class="tv-action-rail"><span>Code changes do not announce a countdown every second</span><div class="cluster"><button class="tv-button" type="button" data-static>Back to lab</button><button class="tv-button" type="button" data-static>Regenerate code</button></div></div>
+      </div></div>
+      <details class="annotations"><summary>Interaction and state annotations</summary><ul><li>Short code is text and can be read in grouped characters.</li><li>Regeneration explains the effect on waiting companions.</li><li>Expired pairing keeps episode progress and TV-only controls intact.</li></ul></details>
+    </section>
+
+    <section class="wireframe" id="companion" aria-labelledby="companion-title">
+      <div class="screen-heading"><div><span class="screen-number">SCREEN 06 / ANDROID COMPANION</span><h2 id="companion-title">Calibration and stable count</h2></div><p>The adult utility UI reports observation quality without turning it into a game.</p></div>
+      <div class="phone-grid">
+        <div class="phone-frame"><div class="phone-screen">
+          <header class="phone-header"><div><span class="eyebrow">CurioLab companion</span><h3>Coin observation</h3><p>The Bridge of Twelve · Trial 1</p></div><span class="status status--success">Connected</span></header>
+          <div class="banner banner--warning"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg><div><strong>Coin count needs review</strong><p>Keep the mat still or use TV entry.</p></div></div>
+          <section class="phone-section"><div class="cluster cluster--between"><h4>LabMat alignment</h4><span class="status status--success"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-check"/></svg>4 of 4 markers</span></div><div class="scene-placeholder" role="img" aria-label="Schematic of a LabMat with four aligned corner markers"><div><strong>MAT ALIGNED</strong><br><span class="small">Good light · no blur detected</span></div></div></section>
+          <section class="panel phone-section"><div class="cluster cluster--between"><span class="muted">Observed count</span><span class="status status--warning">Not stable</span></div><div class="cluster" style="align-items:baseline"><span class="kpi numeric" style="font-size:56px">11</span><strong>coins</strong></div><div class="meter" role="progressbar" aria-label="Observation stability" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60" aria-valuetext="60 percent stability"><span style="width:60%"></span></div><p class="small muted">Observed 2 seconds ago · not confirmed</p><button class="button" type="button" data-static style="width:100%">Mark stop</button></section>
+          <div class="button-row"><button class="button button--secondary" type="button" data-static><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg>Retry calibration</button><button class="button button--ghost" type="button" data-static>Use TV instead</button></div>
+          <p class="micro muted">Debug contours are off. Camera frames are not shown in this static wireframe.</p>
+        </div></div>
+        <aside class="phone-note"><span class="eyebrow">State contract</span><h3>Observation ≠ result</h3><ul class="rule-list small"><li><strong>Aligned</strong><br><span class="muted">All four markers named, not just green corners.</span></li><li><strong>Needs review</strong><br><span class="muted">The current count can be stopped, corrected, or replaced by TV entry.</span></li><li><strong>Camera denied</strong><br><span class="muted">Preview disappears; manual route moves to the top.</span></li><li><strong>Reconnecting</strong><br><span class="muted">Last observed value keeps its timestamp and is not called confirmed.</span></li></ul></aside>
+      </div>
+      <details class="annotations"><summary>Interaction and state annotations</summary><ul><li>Primary action changes with observation state.</li><li>Permission denial and occlusion never block remote-only play.</li><li>Count confirmation remains a family decision on either surface.</li></ul></details>
+    </section>
+    <p class="demo-status" id="demo-status" role="status" aria-live="polite"></p>
+  </main>
+  <footer class="review-footer">CurioLab low-fidelity UI specification · Fictional fixtures only · No Fire TV, Android, camera, or model runtime is active.</footer>
+</body>
+</html>
