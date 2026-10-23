@@ -2,7 +2,11 @@
 
 Recorded 2026-10-23 on the local vertical-slice branch. Evidence covers pure Kotlin/TypeScript source and fictional content only.
 
-## Passing checks
+## Latest bundle-slice run (2026-10-23)
+
+See [`bundle-loader.md`](./bundle-loader.md) for FR-CL-001 implementation, test paths and blockers. Lint, strict TypeScript checking, 29 TypeScript unit tests and 7 contract tests passed. Full `make typecheck` and `make test-unit` are currently blocked at their Kotlin stages because this sandbox has no Java 17 runtime. No current Kotlin/device result is claimed. The table below is historical foundation evidence, not a rerun in this environment.
+
+## Previous foundation passing checks
 
 | Check | Result |
 | --- | --- |
