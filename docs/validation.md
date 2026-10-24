@@ -2,6 +2,10 @@
 
 Recorded 2026-10-23 on the local vertical-slice branch. Evidence covers pure Kotlin/TypeScript source and fictional content only.
 
+## Embedded walkthrough slice (2026-10-24)
+
+The Pages artifact now contains the unchanged public video at `media/curiolab-demo.webm`. A sticky recorded/interactive view switch preserves the episode session and adds native video controls, three playback speeds, metadata-derived approximate flat/folded scene links, download/error recovery and a visible 1080p-viewport/720p-encoding clarification. `pnpm build && pnpm vitest run` passed: **23 suites / 126 tests**. Lint and strict TypeScript checks passed. Build tests compare source/output SHA-256 and assert that the Pages upload includes both assets; the running preview passed MIME, hash and HTTP range checks. Details: `docs/local-demo.md`. No new live Pages/native/accessibility certification evidence is asserted.
+
 ## Latest local orchestration / Pages / video slice (2026-10-24)
 
 See [`local-demo.md`](./local-demo.md). The real shared Kotlin coordinator/protocol now compiles for JVM and Kotlin/JS; parity contracts cover values, preflight, calibration/review, stability, correction, replay and all outcomes. Real local HTTP/WebSocket server contracts and Compose/Pages configuration tests were added. Built static assets completed standard/reduced-motion/no-timing journeys in actual Chromium while offline after loading, with no API/cloud calls. Host processes on 8080/8081/5173 passed the network connectivity and existing HTTP → JVM smoke checks. The requested real browser capture is [`media/curiolab-demo.webm`](./media/curiolab-demo.webm), with version/provenance/hash metadata alongside it. It records a synthetic Pages walkthrough, not a real experiment or human approval.

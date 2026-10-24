@@ -6,5 +6,7 @@ coverage
 .env*
 .private
 .cache
-docs/media
+docs/media/*
+!docs/media/curiolab-demo.webm
+!docs/media/curiolab-demo.json
 apps/firetv/src/generated/*.mjs

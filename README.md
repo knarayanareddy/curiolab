@@ -27,6 +27,8 @@ pnpm verify:local
 
 For a serverless browser rendition: `pnpm build:firetv`, then `pnpm exec vite preview apps/firetv --port 4173`; open `/curiolab/`. The **same Kotlin coordinator** is compiled to JavaScript, with clearly labeled synthetic companion input and tab-memory state—no API/cloud required. The Pages workflow targets https://knarayanareddy.github.io/curiolab/ after Pages is enabled and changes reach `main`; deployment is not yet verified.
 
+The sticky **View Mode** banner switches between the interactive session and the embedded recording, with speed controls and flat/folded scene links. The existing capture is from a 1080p viewport, encoded at 720p; the player states that distinction.
+
 The real Playwright capture is [docs/media/curiolab-demo.webm](./docs/media/curiolab-demo.webm). Re-record with `pnpm record:demo` against the running TV, or set `DEMO_URL` to the static preview. See [setup, browser tooling, Pages permission prerequisite and honest verification boundaries](./docs/local-demo.md). Docker was unavailable here; actual host-network services and the static Chromium journeys were tested instead.
 
 ## TV web simulator

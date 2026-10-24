@@ -26,6 +26,7 @@ const vite = await createViteServer({
         "packages/perception",
         "packages/voice",
         "packages/testkit",
+        "docs/media/curiolab-demo.json",
         "ui",
         "node_modules",
       ].map((path) => resolve(path)),
