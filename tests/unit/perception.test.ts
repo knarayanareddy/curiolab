@@ -144,3 +144,40 @@ describe("CurioLab fixture calibration and stable coin observations", () => {
     ).toThrow("invalid_structured_observation");
   });
 });
+
+it("serializes actual tracker/calibration states to the Kotlin coordinator without committing them", async () => {
+  const { kotlinObservationArgs } = await import(
+    "../../packages/perception/src/kotlin-observation.js"
+  );
+  const counter = new StableCoinCounter("flat", calibration());
+  const pending = counter.observe(frame(0, 0));
+  expect(kotlinObservationArgs(pending).slice(2, 5)).toEqual([
+    "0",
+    "0.65",
+    "0",
+  ]);
+  const stable = counter.observe(frame(1, 500));
+  expect(kotlinObservationArgs(stable)).toEqual([
+    "FLAT",
+    "1",
+    "1",
+    "0.65",
+    "500",
+    "0,1,2,3",
+    "8",
+    "1000",
+    "OBSERVING",
+  ]);
+  const review = counter.observe(
+    frame(2, 600, [detection()], { overlap: true }),
+  );
+  expect(kotlinObservationArgs(review).at(-1)).toBe("NEEDS_REVIEW");
+  counter.markStop("adult_marked_stop");
+  const invalid = new StableCoinCounter(
+    "flat",
+    calibration({ markerIds: ["0", "1"] }),
+  );
+  expect(kotlinObservationArgs(invalid.observe(frame(0, 0))).at(-1)).toBe(
+    "NEEDS_CALIBRATION",
+  );
+});

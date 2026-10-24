@@ -6,6 +6,18 @@
 
 CurioLab is a two-screen family science episode in which predictions precede results and confirmed measurements—not canned success values—drive comparisons.
 
+## TV web simulator
+
+```sh
+make bootstrap
+# Java 17 must be on PATH, or set JAVA_HOME to its installation directory.
+corepack pnpm dev:firetv    # Vite UI + actual local Kotlin engine, port 5173
+# In another terminal:
+corepack pnpm smoke:firetv
+```
+
+Use arrows/Enter or Tab to navigate. Adult preflight precedes both trials; mark stop, then confirm/correct each count to see the measured branch. Camera controls are explicitly fictional structured-state fixtures. Authored hints work with cloud disabled. This is a local development simulator, **not** a Fire OS build, permitted platform simulator, deployed relay or live Bedrock integration. Sessions are memory-only and are lost on server restart. See [`docs/simulator-milestone.md`](./docs/simulator-milestone.md) for architecture, validation, client limitations and remaining gates.
+
 ## Local foundation
 
 Requirements: Node.js 22, Corepack, `make`, and a Java 17 runtime for the pure Kotlin harness. The pinned npm Kotlin compiler is installed by `make bootstrap`; this is not an Android SDK.

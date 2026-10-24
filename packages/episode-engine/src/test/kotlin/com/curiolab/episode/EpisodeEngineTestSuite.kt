@@ -26,6 +26,67 @@ object EpisodeEngineTestSuite {
 
     @JvmStatic
     fun main(args: Array<String>) {
+        expect("adult preflight requires privacy and safety; analytics is optional") {
+            val engine = EpisodeCoordinator()
+            check(runCatching { engine.predict(Trial.FLAT, "unsure") }.isFailure)
+            check(runCatching { engine.begin(AdultPreflight()) }.isFailure)
+            check(engine.session.snapshot.stage == ManualStage.SAFETY_AND_CONSENT)
+            engine.begin(AdultPreflight(true, true, true, true))
+            check(engine.preflight.accepted?.analyticsConsent == false)
+            engine.predict(Trial.FLAT, "unsure")
+            engine.markStop(Trial.FLAT, 5)
+            engine.confirm(Trial.FLAT, 4)
+            check(engine.session.flatResultSceneParameters()["load_count"] == 4)
+        }
+        expect("camera denial has complete manual fallback") {
+            val engine = EpisodeCoordinator()
+            check(runCatching { engine.begin(AdultPreflight(true, true, true, true, cameraChoice = CameraChoice.COMPANION, cameraPermission = CameraPermission.DENIED)) }.isFailure)
+            engine.begin(AdultPreflight(true, true, true, true, cameraPermission = CameraPermission.DENIED))
+            engine.predict(Trial.FLAT, "unsure")
+            engine.markStop(Trial.FLAT, 3)
+            engine.confirm(Trial.FLAT, 3)
+            engine.predict(Trial.FOLDED, "unsure")
+            engine.markStop(Trial.FOLDED, 7)
+            engine.confirm(Trial.FOLDED, 7)
+            check(engine.session.snapshot.episode.comparison() == ComparisonResult.GREATER)
+        }
+        expect("calibration and stable perception never auto-commit counts") {
+            val engine = EpisodeCoordinator()
+            engine.begin(AdultPreflight(true, true, true, true, cameraChoice = CameraChoice.COMPANION, cameraPermission = CameraPermission.GRANTED))
+            engine.predict(Trial.FLAT, "unsure")
+            val observation = CompanionObservation(Trial.FLAT, 1, 5, 0.9, 500, setOf(0, 1, 2, 3), 2.0, 0, PerceptionStatus.OBSERVING)
+            engine.observe(observation.copy(markerIds = setOf(0, 1, 2)))
+            check(engine.observation?.status == PerceptionStatus.NEEDS_CALIBRATION)
+            check(runCatching { engine.markStop(Trial.FLAT, 9) }.isFailure)
+            engine.observe(observation.copy(frameSequence = 2, stableDurationMs = 499))
+            check(runCatching { engine.markStop(Trial.FLAT, 9) }.isFailure)
+            engine.observe(observation.copy(frameSequence = 3, confidence = 0.5))
+            check(engine.observation?.status == PerceptionStatus.NEEDS_REVIEW)
+            check(runCatching { engine.markStop(Trial.FLAT, 9) }.isFailure)
+            engine.observe(observation.copy(frameSequence = 4))
+            check(!engine.observe(observation.copy(frameSequence = 3, stableCount = 8)))
+            check(engine.session.snapshot.episode.measurements.isEmpty())
+            engine.markStop(Trial.FLAT, 9)
+            check(engine.session.snapshot.stoppedMeasurements[Trial.FLAT]?.lastStableCount == 5)
+            engine.confirm(Trial.FLAT, 4)
+            check(engine.session.flatResultSceneParameters()["load_count"] == 4)
+        }
+        expect("perception review calibration errors and NaN fail closed; manual override works") {
+            val engine = EpisodeCoordinator()
+            engine.begin(AdultPreflight(true, true, true, true, cameraChoice = CameraChoice.COMPANION, cameraPermission = CameraPermission.GRANTED))
+            engine.predict(Trial.FLAT, "unsure")
+            val observation = CompanionObservation(Trial.FLAT, 1, 5, 0.9, 500, setOf(0, 1, 2, 3), 2.0, 0, PerceptionStatus.OBSERVING)
+            check(runCatching { engine.observe(observation.copy(confidence = Double.NaN)) }.isFailure)
+            check(runCatching { engine.observe(observation.copy(stableCount = 31)) }.isFailure)
+            engine.observe(observation.copy(reprojectionErrorPx = 8.1))
+            check(engine.observation?.status == PerceptionStatus.NEEDS_CALIBRATION)
+            engine.observe(observation.copy(frameSequence = 2, occludedMs = 1001))
+            check(engine.observation?.status == PerceptionStatus.NEEDS_CALIBRATION)
+            engine.useManual()
+            engine.markStop(Trial.FLAT, 2)
+            engine.confirm(Trial.FLAT, 2)
+            check(engine.session.flatResultSceneParameters()["load_count"] == 2)
+        }
         expect("measurement requires a prior prediction") {
             val failed = runCatching { EpisodeState().confirmMeasurement(Trial.FLAT, 3, 0) }
             check(failed.isFailure)
