@@ -1,6 +1,5 @@
 package com.curiolab.episode
 
-import java.util.Locale
 
 enum class RemoteIntent { UP, DOWN, LEFT, RIGHT, SELECT, BACK }
 /** Android key codes, without Android imports. Voice-assist is OS-owned, not a mic API. */
@@ -23,7 +22,7 @@ fun predictionVoiceOption(trial: Trial, transcript: VoiceTranscript, expectedPus
     if (!transcript.isFinal || !transcript.confidence.isFinite() || transcript.confidence !in 0.85..1.0 ||
         transcript.pushToTalkSession != expectedPushToTalkSession || !expectedPushToTalkSession.matches(Regex("[A-Za-z0-9_-]{1,80}")) ||
         transcript.text.length !in 1..160 || transcript.text.any { it.isISOControl() }) return null
-    val normalized = transcript.text.lowercase(Locale.ROOT).trim().replace(Regex("[.!?]$"), "").replace(Regex("\\s+"), " ")
+    val normalized = transcript.text.lowercase().trim().replace(Regex("[.!?]$"), "").replace(Regex("\\s+"), " ")
     val phrases = if (trial == Trial.FLAT) mapOf(
         "flat" to "flat", "flat paper" to "flat", "the flat one" to "flat",
         "folded" to "folded", "folded paper" to "folded", "the folded one" to "folded",

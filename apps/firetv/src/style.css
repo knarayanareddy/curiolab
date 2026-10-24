@@ -608,3 +608,8 @@ a:focus {
 .episode-canvas[data-branch-enter="false"] .branch-symbol {
   animation: none !important;
 }
+.bridge-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 16px;
+}

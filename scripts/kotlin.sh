@@ -26,7 +26,7 @@ case "$COMMAND" in
     "$KOTLINC" "${MAIN_SOURCES[@]}" "${TEST_SOURCES[@]}" -d "$ROOT/build/typecheck.jar"
     ;;
   build)
-    "$KOTLINC" "${MAIN_SOURCES[@]}" -include-runtime -d "$ROOT/build/episode-engine.jar"
+    "$KOTLINC" "${MAIN_SOURCES[@]}" -include-runtime -d "${KOTLIN_BUILD_JAR:-$ROOT/build/episode-engine.jar}"
     ;;
   test)
     "$KOTLINC" "${MAIN_SOURCES[@]}" "${TEST_SOURCES[@]}" -include-runtime -d "$ROOT/build/episode-engine-tests.jar"

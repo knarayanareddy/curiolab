@@ -6,6 +6,10 @@ Recorded 2026-10-24. Local implementation/fixture evidence only. This extracted 
 
 The coordinator-driven SVG canvas and complete local paired lifecycle contract are documented in [`scene-lifecycle-validation.md`](./scene-lifecycle-validation.md). They supersede this milestone's earlier **static-scene** description and historical test counts below. The canvas uses confirmed counts only; reduced-motion/no-timing share static end states. The local relay bridge is fixture-only and does not establish a native/deployed phone connection. See [`backend-deployment.md`](./backend-deployment.md) for the later relay snapshot/authentication implementations; the client limitations below describe this earlier milestone, not current backend source.
 
+## Current browser-build note
+
+The later [`local-demo.md`](./local-demo.md) slice adds Compose services, a real Playwright capture and the Kotlin/JS Pages rendition. `build:firetv` now emits standalone `build/pages/` assets (no API required), while `dev:firetv` retains the local JVM API. The earlier run/build descriptions below are historical milestone evidence.
+
 ## Run
 
 Requirements: Node 22, pinned pnpm through Corepack, Java 17. Install with `make bootstrap`, set `JAVA_HOME` if Java is not on PATH, then:

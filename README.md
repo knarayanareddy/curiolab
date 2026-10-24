@@ -17,6 +17,18 @@ make test-infra
 
 The SAM template is `infra/backend.template.json`. **No backend is deployed and no real AWS/device integration is claimed.** Follow [`docs/backend-deployment.md`](./docs/backend-deployment.md) for operator deployment, model access verification, test-grant provisioning, protocol details, safety boundaries and remaining release gates. Production one-time pairing issuance, native audio/Transcribe, durable engine hydration, deletion jobs and device evidence remain incomplete.
 
+## Interactive demo, Compose and recording
+
+```sh
+docker compose up --build --wait  # local relay :8080, draft content :8081, TV :5173
+# Open http://localhost:5173/curiolab/
+pnpm verify:local
+```
+
+For a serverless browser rendition: `pnpm build:firetv`, then `pnpm exec vite preview apps/firetv --port 4173`; open `/curiolab/`. The **same Kotlin coordinator** is compiled to JavaScript, with clearly labeled synthetic companion input and tab-memory state—no API/cloud required. The Pages workflow targets https://knarayanareddy.github.io/curiolab/ after Pages is enabled and changes reach `main`; deployment is not yet verified.
+
+The real Playwright capture is [docs/media/curiolab-demo.webm](./docs/media/curiolab-demo.webm). Re-record with `pnpm record:demo` against the running TV, or set `DEMO_URL` to the static preview. See [setup, browser tooling, Pages permission prerequisite and honest verification boundaries](./docs/local-demo.md). Docker was unavailable here; actual host-network services and the static Chromium journeys were tested instead.
+
 ## TV web simulator
 
 ```sh

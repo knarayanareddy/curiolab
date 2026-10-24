@@ -49,3 +49,17 @@ deploy:
 
 evidence:
 	@echo "Foundation only: no Fire TV, companion, family, learning, or release evidence. See docs/validation.md."
+
+.PHONY: dev-compose test-local-services record-demo test-pages
+# Explicitly local fixtures; native/deployed integration targets above remain blocked.
+dev-compose:
+	docker compose up --build --wait
+
+test-local-services:
+	$(PNPM) verify:local
+
+record-demo:
+	$(PNPM) record:demo
+
+test-pages:
+	$(PNPM) smoke:pages
