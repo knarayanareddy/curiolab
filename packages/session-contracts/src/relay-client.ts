@@ -1,3 +1,4 @@
+import { exactKeys, validateSnapshot } from "./session-state.js";
 export interface RelaySocket {
   send(data: string): void;
   close(): void;
@@ -13,7 +14,13 @@ export interface RelayMessage {
   device_id: string;
   sequence: number;
   sent_at: string;
-  type: "observation.candidate" | "observation.stopped" | "session.error";
+  type:
+    | "observation.candidate"
+    | "observation.stopped"
+    | "session.error"
+    | "session.hello"
+    | "state.snapshot"
+    | "voice.transcript";
   payload: Record<string, unknown>;
 }
 export type RelayStatus =
@@ -60,7 +67,43 @@ export function parseRelayMessage(
   const count = (n: unknown) =>
     typeof n === "number" && Number.isInteger(n) && n >= 0 && n <= 30;
   let fields: string[];
-  if (value.type === "session.error") {
+  if (value.type === "session.hello") {
+    exactKeys(p, ["resume_sequence", "snapshot", "stopped"]);
+    if (
+      !Number.isSafeInteger(p.resume_sequence) ||
+      Number(p.resume_sequence) < -1
+    )
+      throw new Error("invalid_resume");
+    if (p.snapshot !== null) validateSnapshot(p.snapshot);
+    if (p.stopped !== null) {
+      const stopped = parseRelayMessage(JSON.stringify(p.stopped), sessionId);
+      if (stopped.type !== "observation.stopped")
+        throw new Error("invalid_resume_stop");
+    }
+    return value;
+  } else if (value.type === "state.snapshot") {
+    exactKeys(p, ["state", "expected_state_sequence"]);
+    validateSnapshot(p.state);
+    if (
+      !Number.isSafeInteger(p.expected_state_sequence) ||
+      Number(p.expected_state_sequence) < -1
+    )
+      throw new Error("invalid_snapshot_sequence");
+    return value;
+  } else if (value.type === "voice.transcript") {
+    exactKeys(p, ["transcript", "confidence", "push_to_talk_session"]);
+    if (
+      typeof p.transcript !== "string" ||
+      p.transcript.length > 160 ||
+      typeof p.confidence !== "number" ||
+      !Number.isFinite(p.confidence) ||
+      p.confidence < 0 ||
+      p.confidence > 1 ||
+      !safeId(p.push_to_talk_session)
+    )
+      throw new Error("invalid_transcript");
+    return value;
+  } else if (value.type === "session.error") {
     fields = ["code", "recoverable"];
     if (
       !["unauthorized", "expired", "revoked", "unavailable"].includes(
@@ -113,6 +156,8 @@ export class WebSocketRelayClient {
   private readonly received = new Map<string, number>();
   private sequence = 0;
   private scopeId = "";
+  private sendScope: { sessionId: string; deviceId: string } | undefined;
+  private authenticated = false;
   private timer: ReturnType<typeof setTimeout> | undefined;
   private readonly seen = new Set<string>();
   constructor(
@@ -149,6 +194,7 @@ export class WebSocketRelayClient {
       this.sequence = 0;
     }
     this.scopeId = scope.sessionId;
+    this.sendScope = { sessionId: scope.sessionId, deviceId: scope.deviceId };
     this.status = "connecting";
     const socket = this.createSocket(endpoint.href);
     this.socket = socket;
@@ -181,9 +227,16 @@ export class WebSocketRelayClient {
       try {
         const message = parseRelayMessage(event.data, scope.sessionId);
         if (this.seen.has(message.message_id)) return;
+        if (message.type === "session.hello") {
+          this.authenticated = true;
+          this.sequence = Math.max(
+            this.sequence,
+            Number(message.payload.resume_sequence) + 1,
+          );
+        }
         const sender = `${scope.sessionId}:${message.device_id}`;
         if (message.sequence <= (this.received.get(sender) ?? -1)) return;
-        if (this.received.size >= 2 && !this.received.has(sender))
+        if (this.received.size >= 3 && !this.received.has(sender))
           throw new Error("unexpected_sender");
         this.received.set(sender, message.sequence);
         this.seen.add(message.message_id);
@@ -201,13 +254,47 @@ export class WebSocketRelayClient {
     socket.onclose = socket.onerror = () => {
       if (active()) {
         clearTimeout(this.timer);
+        this.authenticated = false;
+        this.sendScope = undefined;
         this.socket = undefined;
         this.status = "offline";
         socket.close();
       }
     };
   }
+  send(
+    type:
+      | "observation.candidate"
+      | "observation.stopped"
+      | "state.snapshot"
+      | "voice.transcript",
+    payload: Record<string, unknown>,
+  ): void {
+    if (
+      !this.socket ||
+      !this.sendScope ||
+      !this.authenticated ||
+      this.status !== "connected"
+    )
+      throw new Error("relay_not_authenticated");
+    const message = {
+      schema_version: 1,
+      message_id: this.id(),
+      session_id: this.sendScope.sessionId,
+      device_id: this.sendScope.deviceId,
+      sequence: this.sequence,
+      sent_at: this.now().toISOString(),
+      type,
+      payload,
+    };
+    const bytes = JSON.stringify(message);
+    parseRelayMessage(bytes, this.sendScope.sessionId);
+    this.socket.send(bytes);
+    this.sequence++;
+  }
   disconnect(): void {
+    this.authenticated = false;
+    this.sendScope = undefined;
     clearTimeout(this.timer);
     const socket = this.socket;
     this.socket = undefined;

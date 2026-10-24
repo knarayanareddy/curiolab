@@ -2,6 +2,10 @@
 
 Recorded 2026-10-23 on the local vertical-slice branch. Evidence covers pure Kotlin/TypeScript source and fictional content only.
 
+## Latest deployable-backend slice (2026-10-24)
+
+See [`backend-deployment.md`](./backend-deployment.md) for SDK/API preflight, deployment/runbook, exact wire scope, tests and blockers. `make lint typecheck test-unit test-contract test-infra test-security` passed: 67 TypeScript unit, 24 Kotlin, 24 contract, 2 infrastructure and 1 existing security test. Backend Lambda bundle build/import, web build and cfn-lint 1.58.0 validation passed. The current dependency audit reports no known vulnerabilities. No AWS CLI/SAM CLI or credential environment was available; no stack, real DynamoDB/API Gateway socket, Bedrock invocation or native voice/device run is claimed. The conservative text director, relay state hydration, transient transcript handling and input policies remain local evidence, not completed live release gates.
+
 ## Latest simulator milestone (2026-10-24)
 
 See [`simulator-milestone.md`](./simulator-milestone.md) for preflight, Kotlin perception integration, relay/hint client and UI paths, protocols and remaining blockers. Full `make lint typecheck test-unit test-contract test-security` now passes with Java 17 (obtained through pinned PyPI jdk4py). Results: 49 TypeScript unit + 21 Kotlin + 10 contract + 1 security tests passed. The web build and running local HTTP → Kotlin smoke script also passed. One low transitive esbuild advisory remains; no moderate/high audit issues. This supersedes the previous sandbox Java blocker but does not imply native, accessibility or deployed AWS validation.

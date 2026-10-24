@@ -430,3 +430,22 @@ footer > span {
     transition: none !important;
   }
 }
+.back-sheet {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #10182be8;
+  padding: 5%;
+  z-index: 5;
+}
+.back-sheet[hidden] {
+  display: none;
+}
+.back-sheet section {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 48px;
+  max-width: 1000px;
+}

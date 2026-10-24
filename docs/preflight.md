@@ -36,3 +36,7 @@ make dev
 ```
 
 Publication preflight (`corepack pnpm validate:content -- --publish`) must currently fail. Draft success means only that schema/graph checks passed.
+
+## Deployable backend preflight — 2026-10-24
+
+AWS SDK clients/document adapter 3.1156.0, esbuild 0.28.2 and cfn-lint 1.58.0 were exercised locally. The official current Converse/PostToConnection command source and installed types were checked. No AWS CLI/SAM CLI or credential environment was present, and no AWS account/region/model availability was verified. Deployment and native/live evidence remain blocked. See [`backend-deployment.md`](./backend-deployment.md) for sources, validation results and operator steps. Build/import/template validation did not invoke AWS.

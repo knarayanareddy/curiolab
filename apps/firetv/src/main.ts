@@ -1,3 +1,4 @@
+import { browserRemoteIntent } from "../../../packages/voice/src/push-to-talk";
 import {
   evaluateCalibration,
   StableCoinCounter,
@@ -431,23 +432,64 @@ el("restart").onclick = async () => {
   frame = 0;
   await action("state");
 };
+const backSheet = document.createElement("div");
+backSheet.id = "back-sheet";
+backSheet.className = "back-sheet";
+backSheet.hidden = true;
+backSheet.setAttribute("role", "dialog");
+backSheet.setAttribute("aria-modal", "true");
+backSheet.setAttribute("aria-labelledby", "back-title");
+backSheet.innerHTML =
+  '<section><h2 id="back-title">Pause here</h2><p>Your confirmed measurements stay unchanged while this local server is running.</p><button id="back-continue">Return to episode</button> <button id="back-clear" class="secondary">Clear this session</button></section>';
+app.append(backSheet);
+let returnFocus: HTMLElement | null = null;
+function closeBackSheet() {
+  backSheet.hidden = true;
+  for (const region of document.querySelectorAll("header,main,footer"))
+    region.removeAttribute("inert");
+  returnFocus?.focus();
+}
+el("back-continue").onclick = closeBackSheet;
+el("back-clear").onclick = () => {
+  closeBackSheet();
+  el<HTMLButtonElement>("restart").click();
+};
 document.addEventListener("keydown", (event) => {
-  if (
-    !["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight"].includes(event.key) ||
-    document.activeElement?.tagName === "SELECT"
-  )
+  const intent = browserRemoteIntent(event.key, event.repeat);
+  if (!intent) {
+    if (event.repeat && ["Enter", "Escape", "BrowserBack"].includes(event.key))
+      event.preventDefault();
     return;
+  }
+  if (intent === "select") return; // Native button/input activation, never double-dispatch.
+  if (intent === "back") {
+    event.preventDefault();
+    if (!el("hint-text").hidden) {
+      el("hint-text").hidden = true;
+      el("hint").focus();
+      return;
+    }
+    if (!backSheet.hidden) {
+      closeBackSheet();
+      return;
+    }
+    returnFocus = document.activeElement as HTMLElement;
+    backSheet.hidden = false;
+    for (const region of document.querySelectorAll("header,main,footer"))
+      region.setAttribute("inert", "");
+    el("back-continue").focus();
+    return;
+  }
+  if (document.activeElement?.tagName === "SELECT") return;
   const items = Array.from(
     document.querySelectorAll<HTMLElement>(
       "button:not(:disabled),input,select,a",
     ),
-  );
+  ).filter((item) => !item.closest("[hidden],[inert]"));
   const index = items.indexOf(document.activeElement as HTMLElement);
   event.preventDefault();
   items[
-    (index +
-      (event.key === "ArrowUp" || event.key === "ArrowLeft" ? -1 : 1) +
-      items.length) %
+    (index + (intent === "up" || intent === "left" ? -1 : 1) + items.length) %
       items.length
   ]?.focus();
 });
