@@ -2,6 +2,10 @@
 
 Recorded 2026-10-24. Local implementation/fixture evidence only. This extracted checkout is the CurioLab project root; no sibling/shared production files or controlled specifications/schemas were modified.
 
+## Subsequent scene/lifecycle slice
+
+The coordinator-driven SVG canvas and complete local paired lifecycle contract are documented in [`scene-lifecycle-validation.md`](./scene-lifecycle-validation.md). They supersede this milestone's earlier **static-scene** description and historical test counts below. The canvas uses confirmed counts only; reduced-motion/no-timing share static end states. The local relay bridge is fixture-only and does not establish a native/deployed phone connection. See [`backend-deployment.md`](./backend-deployment.md) for the later relay snapshot/authentication implementations; the client limitations below describe this earlier milestone, not current backend source.
+
 ## Run
 
 Requirements: Node 22, pinned pnpm through Corepack, Java 17. Install with `make bootstrap`, set `JAVA_HOME` if Java is not on PATH, then:

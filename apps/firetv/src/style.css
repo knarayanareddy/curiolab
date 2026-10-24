@@ -101,7 +101,7 @@ p {
   margin-bottom: 24px;
 }
 #content {
-  font-size: clamp(18px, 1.4vw, 27px);
+  font-size: clamp(18px, 1.57vw, 30px);
 }
 .check {
   display: flex;
@@ -231,64 +231,6 @@ button:disabled {
   gap: 12px;
   flex-wrap: wrap;
 }
-.mission {
-  height: 240px;
-  position: relative;
-  overflow: hidden;
-  margin: 25px 0;
-  border-bottom: 1px solid #4c6178;
-}
-.moon {
-  position: absolute;
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  background: #f4e8b8;
-  right: 18%;
-  top: 22px;
-  box-shadow: inset -23px -10px 0 #cfc7a0;
-}
-.stars {
-  color: var(--accent);
-  position: absolute;
-  top: 0;
-  left: 10%;
-  letter-spacing: 20px;
-}
-.hill {
-  position: absolute;
-  width: 100%;
-  height: 100px;
-  bottom: -40px;
-  background: #293f56;
-  border-radius: 50%;
-}
-.base {
-  position: absolute;
-  color: var(--accent);
-  font-size: 120px;
-  left: 8%;
-  bottom: 5px;
-  z-index: 1;
-}
-.bridge {
-  position: absolute;
-  left: 35%;
-  width: 60%;
-  height: 9px;
-  background: var(--primary);
-  bottom: 64px;
-  transform: rotate(-5deg);
-}
-.mission > span {
-  position: absolute;
-  bottom: 5px;
-  right: 10px;
-  z-index: 2;
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: var(--text_muted);
-}
 .progress {
   font-size: 12px;
   letter-spacing: 2px;
@@ -388,7 +330,6 @@ footer > span {
     display: block;
     padding: 30px 6%;
   }
-  .mission,
   .intro,
   .remote,
   .progress {
@@ -448,4 +389,222 @@ footer > span {
   border-radius: 20px;
   padding: 48px;
   max-width: 1000px;
+}
+/* Coordinator-driven SVG canvas; load is ALWAYS a confirmed measurement. */
+.episode-canvas {
+  margin: 28px 0;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.scene-caption {
+  font-size: clamp(18px, 1.57vw, 30px);
+  color: var(--text);
+  margin: 0 0 12px;
+}
+.scene-note {
+  font-size: clamp(16px, 1.36vw, 26px);
+  color: var(--text_muted);
+  margin: 12px 0 0;
+}
+.bridge-card h3 {
+  font-size: clamp(18px, 1.57vw, 30px);
+  color: var(--text_muted);
+  margin: 12px 0 0;
+}
+.bridge-graphic {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 280px;
+}
+.lunar-ground {
+  fill: var(--surface_alt);
+}
+.bridge-support {
+  fill: var(--surface_alt);
+  stroke: var(--border);
+  stroke-width: 3;
+}
+.support-lines {
+  stroke: var(--border);
+  fill: none;
+  stroke-width: 2;
+}
+.paper-shape {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 7;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.bridge-folded .paper-shape {
+  stroke: var(--accent);
+}
+.paper-left,
+.paper-right {
+  transform-box: view-box;
+}
+.is-collapsed .paper-left {
+  transform-origin: 100px 220px;
+  transform: rotate(12deg);
+  animation: flat-collapse-left 450ms ease-out 1;
+}
+.is-collapsed .paper-right {
+  transform-origin: 500px 220px;
+  transform: rotate(-12deg);
+  animation: flat-collapse-right 450ms ease-out 1;
+}
+.scene-crate rect {
+  fill: var(--primary);
+  stroke: var(--on_primary);
+  stroke-width: 2;
+}
+.scene-crate path {
+  stroke: var(--on_primary);
+  stroke-width: 2;
+}
+.bridge-folded .scene-crate rect {
+  fill: var(--accent);
+}
+.bridge-flat.is-confirmed .scene-crates {
+  transform: translateY(calc(var(--sag) + 60px));
+  animation: flat-load-settle 450ms ease-out 1;
+}
+.bridge-folded.is-confirmed .scene-crates {
+  animation: folded-load-settle 450ms ease-out 1;
+}
+.branch-feedback {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--border);
+}
+.branch-feedback p {
+  font-size: clamp(18px, 1.57vw, 30px);
+  margin: 0;
+}
+.branch-symbol {
+  font-size: 48px;
+  color: var(--accent);
+}
+.resolution-greater .branch-symbol {
+  animation: resolve-greater 450ms ease-out 1;
+}
+.resolution-equal .branch-symbol {
+  animation: resolve-equal 450ms ease-out 1;
+}
+.resolution-lower .branch-symbol {
+  animation: resolve-lower 450ms ease-out 1;
+}
+/* Remote focus is also explicit for programmatically focused D-pad targets. */
+button:focus,
+input:focus,
+select:focus,
+a:focus {
+  outline: 4px solid var(--focus);
+  outline-offset: 5px;
+}
+@keyframes flat-collapse-left {
+  from {
+    transform: rotate(0);
+  }
+  45% {
+    transform: rotate(4deg);
+  }
+  to {
+    transform: rotate(12deg);
+  }
+}
+@keyframes flat-collapse-right {
+  from {
+    transform: rotate(0);
+  }
+  45% {
+    transform: rotate(-4deg);
+  }
+  to {
+    transform: rotate(-12deg);
+  }
+}
+@keyframes flat-load-settle {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(var(--sag) + 60px));
+  }
+}
+@keyframes folded-load-settle {
+  from {
+    transform: translateY(-12px);
+    opacity: 0.4;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes resolve-greater {
+  from {
+    transform: translateY(14px);
+    opacity: 0.4;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes resolve-equal {
+  from {
+    transform: scaleX(0.7);
+    opacity: 0.4;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+@keyframes resolve-lower {
+  from {
+    transform: translateY(-14px);
+    opacity: 0.4;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+/* All alternatives show the SAME static end state; nothing waits for animationend. */
+.episode-canvas[data-quiet="true"] *,
+[data-motion="reduced_motion"] .episode-canvas *,
+[data-motion="no_timing"] .episode-canvas * {
+  animation: none !important;
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .episode-canvas * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+@media (max-width: 900px) {
+  .episode-canvas {
+    margin: 20px 0;
+  }
+  .bridge-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 16px;
+  }
+  .bridge-graphic {
+    max-height: 220px;
+  }
+}
+.bridge-card[data-animate="false"] *,
+.episode-canvas[data-branch-enter="false"] .branch-symbol {
+  animation: none !important;
 }

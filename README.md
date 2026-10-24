@@ -29,6 +29,18 @@ corepack pnpm smoke:firetv
 
 Use arrows/Enter or Tab to navigate. Adult preflight precedes both trials; mark stop, then confirm/correct each count to see the measured branch. Camera controls are explicitly fictional structured-state fixtures. Authored hints work with cloud disabled. This is a local development simulator, **not** a Fire OS build, permitted platform simulator, deployed relay or live Bedrock integration. Sessions are memory-only and are lost on server restart. See [`docs/simulator-milestone.md`](./docs/simulator-milestone.md) for architecture, validation, client limitations and remaining gates.
 
+### Coordinator-driven scene and local lifecycle test
+
+The SVG story canvas now uses only Kotlin-confirmed measurements: flat-paper deflection/collapse illustration, a folded accordion carrying the confirmed load, and distinct greater/equal/lower feedback. Exact counts accompany capped crate drawings. Reduced-motion/no-timing show the same static end state; confirmation is quiet and D-pad focus stays visible.
+
+```sh
+# Java 17 required; includes compiling/running the actual Kotlin coordinator.
+corepack pnpm vitest run tests/contract/e2e-session-lifecycle.test.ts
+corepack pnpm typecheck && corepack pnpm lint && corepack pnpm vitest run
+```
+
+The local lifecycle contract exercises pairing, relay, structured tracker frames, family correction/confirmation, all three branches, authored fallback rendering and fixture cleanup. It is not deployed/native E2E; see [boundaries and reproduction](./docs/scene-lifecycle-validation.md). `make test-e2e` remains the blocked native-device gate.
+
 ## Local foundation
 
 Requirements: Node.js 22, Corepack, `make`, and a Java 17 runtime for the pure Kotlin harness. The pinned npm Kotlin compiler is installed by `make bootstrap`; this is not an Android SDK.

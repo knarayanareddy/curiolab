@@ -32,8 +32,10 @@ object SimulatorBridge {
                 val flat = snapshot.episode.measurements[Trial.FLAT.measurementKey]
                 val folded = snapshot.episode.measurements[Trial.FOLDED.measurementKey]
                 val stopped = snapshot.stoppedMeasurements.values.lastOrNull()?.lastStableCount
+                val predictions = snapshot.episode.predictions.entries.joinToString(",") { (key, value) -> "\"${key.removePrefix("predictions.")}\":\"$value\"" }
+                val accessibilityMode = engine.preflight.accepted?.accessibilityMode ?: "standard"
                 val comparison = if (flat != null && folded != null) "\"${snapshot.episode.comparison()}\"" else "null"
-                println("{\"stage\":\"${snapshot.stage}\",\"sequence\":${snapshot.sequence},\"flat\":$flat,\"folded\":$folded,\"stopped\":$stopped,\"comparison\":$comparison,\"perception\":\"${engine.observation?.status ?: "NONE"}\",\"observed\":${engine.observation?.stableCount ?: 0}}")
+                println("{\"predictions\":{$predictions},\"accessibility_mode\":\"$accessibilityMode\",\"stage\":\"${snapshot.stage}\",\"sequence\":${snapshot.sequence},\"flat\":$flat,\"folded\":$folded,\"stopped\":$stopped,\"comparison\":$comparison,\"perception\":\"${engine.observation?.status ?: "NONE"}\",\"observed\":${engine.observation?.stableCount ?: 0}}")
             } catch (error: Exception) {
                 // Never echo untrusted command data or private inputs.
                 println("{\"error\":\"Action rejected. Check consent, current step, calibration and count; manual mode remains available.\"}")
