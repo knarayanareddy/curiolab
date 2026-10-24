@@ -6,6 +6,17 @@
 
 CurioLab is a two-screen family science episode in which predictions precede results and confirmed measurements—not canned success values—drive comparisons.
 
+## Deployable backend and input intents
+
+The test-stage relay backend now includes API Gateway/Lambda handlers, DynamoDB conditional state storage, scoped first-frame authentication, resume snapshots, transient structured observations/transcripts, and a text-only Bedrock Converse hint adapter with authored fallback. Pure Kotlin/TypeScript parsers cover remote navigation and companion push-to-talk prediction choices. The simulator's Back key opens a non-destructive pause sheet.
+
+```sh
+corepack pnpm build:backend
+make test-infra
+```
+
+The SAM template is `infra/backend.template.json`. **No backend is deployed and no real AWS/device integration is claimed.** Follow [`docs/backend-deployment.md`](./docs/backend-deployment.md) for operator deployment, model access verification, test-grant provisioning, protocol details, safety boundaries and remaining release gates. Production one-time pairing issuance, native audio/Transcribe, durable engine hydration, deletion jobs and device evidence remain incomplete.
+
 ## TV web simulator
 
 ```sh
@@ -35,7 +46,7 @@ Draft validation checks schema/graph semantics only. `--publish` intentionally r
 
 `make test-security` audits the npm graph. Native integration, E2E, infrastructure, and deployment targets intentionally fail while unavailable.
 
-The walking fixture also creates an anonymous parent-approved session, exchanges a five-minute unambiguous code once for session/device-scoped credentials, verifies scope binding, denies replay, and revokes access. Pairing state and hashed credential material are in-memory; no REST/WebSocket relay, Cognito, DynamoDB, or companion connection exists.
+The walking fixture also creates an anonymous parent-approved session, exchanges a five-minute unambiguous code once for session/device-scoped credentials, verifies scope binding, denies replay, and revokes access. Pairing state and hashed credential material are in-memory; no REST/WebSocket relay, Cognito, DynamoDB table, or companion connection is deployed. The separate backend source above is deployable test-stage code, not live evidence.
 
 ## Workspace map
 

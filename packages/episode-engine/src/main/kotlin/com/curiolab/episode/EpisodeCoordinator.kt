@@ -21,6 +21,19 @@ class EpisodeCoordinator {
     var observation: CompanionObservation? = null
         private set
     private var frameSequence = -1L
+    private val consumedVoiceSessions = mutableSetOf<String>()
+    fun acceptVoicePrediction(transcript: VoiceTranscript, activePushToTalkSession: String): Boolean {
+        if (transcript.pushToTalkSession in consumedVoiceSessions || consumedVoiceSessions.size >= 32) return false
+        val trial = when (session.snapshot.stage) {
+            ManualStage.FLAT_PREDICTION -> Trial.FLAT
+            ManualStage.FOLDED_PREDICTION -> Trial.FOLDED
+            else -> return false
+        }
+        val option = predictionVoiceOption(trial, transcript, activePushToTalkSession) ?: return false
+        predict(trial, option)
+        consumedVoiceSessions.add(transcript.pushToTalkSession)
+        return true
+    }
 
     fun begin(choice: AdultPreflight) {
         val blockers = preflight.accept(choice)

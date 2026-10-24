@@ -61,6 +61,7 @@ const vite = await createViteServer({
         "packages/model-gateway",
         "packages/session-contracts",
         "packages/perception",
+        "packages/voice",
         "ui",
         "node_modules",
       ].map((path) => resolve(path)),

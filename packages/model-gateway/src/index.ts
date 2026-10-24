@@ -118,11 +118,14 @@ export class ModelGateway {
 }
 /** Calls the shared application gateway, never Bedrock or browser AWS credentials. */
 export class HttpHintTransport implements HintTransport {
-  constructor(private readonly fetcher: typeof fetch = fetch) {}
+  constructor(
+    private readonly fetcher: typeof fetch = fetch,
+    private readonly headers: () => Record<string, string> = () => ({}),
+  ) {}
   async request(context: HintContext, signal: AbortSignal): Promise<unknown> {
     const response = await this.fetcher("/v1/hints", {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", ...this.headers() },
       body: JSON.stringify({
         node_id: `node_${context.nodeId.toLowerCase()}`,
         attempt_count: context.attempt,

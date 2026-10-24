@@ -1,0 +1,368 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": "AWS::Serverless-2016-10-31",
+  "Description": "CurioLab test-stage structured relay and text-only hint backend. Native/live evidence required separately.",
+  "Parameters": {
+    "TextModelId": {
+      "Type": "String",
+      "Description": "Operator-verified available Converse text model/inference-profile ID (never Canvas)."
+    },
+    "TextModelArn": {
+      "Type": "String",
+      "AllowedPattern": "arn:[a-z-]+:bedrock:[a-z0-9-]+:[0-9]*:[a-z-]+/.+",
+      "Description": "Exact allowed InvokeModel ARN. Inference-profile foundation-model access may require an explicit reviewed policy extension."
+    },
+    "LiveHintsEnabled": {
+      "Type": "String",
+      "Default": "false",
+      "AllowedValues": ["true", "false"]
+    }
+  },
+  "Resources": {
+    "RelayTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "BillingMode": "PAY_PER_REQUEST",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "pk",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "pk",
+            "KeyType": "HASH"
+          }
+        ],
+        "SSESpecification": {
+          "SSEEnabled": true
+        },
+        "PointInTimeRecoverySpecification": {
+          "PointInTimeRecoveryEnabled": true
+        },
+        "TimeToLiveSpecification": {
+          "AttributeName": "ttl",
+          "Enabled": true
+        }
+      }
+    },
+    "WebSocketApi": {
+      "Type": "AWS::ApiGatewayV2::Api",
+      "Properties": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-relay"
+        },
+        "ProtocolType": "WEBSOCKET",
+        "RouteSelectionExpression": "$request.body.type"
+      }
+    },
+    "RelayFunction": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "CodeUri": "../build/backend/",
+        "Handler": "relay.handler",
+        "Runtime": "nodejs22.x",
+        "Timeout": 10,
+        "MemorySize": 256,
+        "ReservedConcurrentExecutions": 10,
+        "Environment": {
+          "Variables": {
+            "RELAY_TABLE": {
+              "Ref": "RelayTable"
+            },
+            "RELAY_MANAGEMENT_ENDPOINT": {
+              "Fn::Sub": "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/test"
+            }
+          }
+        },
+        "Policies": [
+          {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "dynamodb:GetItem",
+                  "dynamodb:PutItem",
+                  "dynamodb:DeleteItem"
+                ],
+                "Resource": {
+                  "Fn::GetAtt": ["RelayTable", "Arn"]
+                }
+              },
+              {
+                "Effect": "Allow",
+                "Action": ["execute-api:ManageConnections"],
+                "Resource": {
+                  "Fn::Sub": "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/test/POST/@connections/*"
+                }
+              },
+              {
+                "Effect": "Allow",
+                "Action": ["execute-api:ManageConnections"],
+                "Resource": {
+                  "Fn::Sub": "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/test/DELETE/@connections/*"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "RelayIntegration": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "WebSocketApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RelayFunction.Arn}/invocations"
+        }
+      }
+    },
+    "ConnectRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "WebSocketApi"
+        },
+        "RouteKey": "$connect",
+        "AuthorizationType": "NONE",
+        "Target": {
+          "Fn::Join": [
+            "/",
+            [
+              "integrations",
+              {
+                "Ref": "RelayIntegration"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "DisconnectRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "WebSocketApi"
+        },
+        "RouteKey": "$disconnect",
+        "AuthorizationType": "NONE",
+        "Target": {
+          "Fn::Join": [
+            "/",
+            [
+              "integrations",
+              {
+                "Ref": "RelayIntegration"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "MessageRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "WebSocketApi"
+        },
+        "RouteKey": "$default",
+        "AuthorizationType": "NONE",
+        "Target": {
+          "Fn::Join": [
+            "/",
+            [
+              "integrations",
+              {
+                "Ref": "RelayIntegration"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "RelayStage": {
+      "Type": "AWS::ApiGatewayV2::Stage",
+      "DependsOn": ["ConnectRoute", "DisconnectRoute", "MessageRoute"],
+      "Properties": {
+        "ApiId": {
+          "Ref": "WebSocketApi"
+        },
+        "StageName": "test",
+        "AutoDeploy": true,
+        "DefaultRouteSettings": {
+          "ThrottlingBurstLimit": 40,
+          "ThrottlingRateLimit": 20
+        },
+        "RouteSettings": {
+          "$connect": {
+            "ThrottlingBurstLimit": 5,
+            "ThrottlingRateLimit": 1
+          }
+        }
+      }
+    },
+    "RelayInvokePermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "RelayFunction"
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Sub": "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*"
+        }
+      }
+    },
+    "HintApi": {
+      "Type": "AWS::Serverless::HttpApi",
+      "Properties": {
+        "StageName": "test",
+        "DefaultRouteSettings": {
+          "ThrottlingBurstLimit": 2,
+          "ThrottlingRateLimit": 2
+        }
+      }
+    },
+    "HintFunction": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "CodeUri": "../build/backend/",
+        "Handler": "hints.handler",
+        "Runtime": "nodejs22.x",
+        "Timeout": 5,
+        "MemorySize": 256,
+        "ReservedConcurrentExecutions": 2,
+        "Environment": {
+          "Variables": {
+            "RELAY_TABLE": {
+              "Ref": "RelayTable"
+            },
+            "BEDROCK_MODEL_ID": {
+              "Ref": "TextModelId"
+            },
+            "LIVE_HINTS_ENABLED": {
+              "Ref": "LiveHintsEnabled"
+            }
+          }
+        },
+        "Policies": [
+          {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": ["dynamodb:GetItem", "dynamodb:PutItem"],
+                "Resource": {
+                  "Fn::GetAtt": ["RelayTable", "Arn"]
+                }
+              },
+              {
+                "Effect": "Allow",
+                "Action": ["bedrock:InvokeModel"],
+                "Resource": {
+                  "Ref": "TextModelArn"
+                }
+              }
+            ]
+          }
+        ],
+        "Events": {
+          "HintRequest": {
+            "Type": "HttpApi",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HintApi"
+              },
+              "Path": "/v1/hints",
+              "Method": "POST",
+              "PayloadFormatVersion": "2.0"
+            }
+          }
+        }
+      }
+    },
+    "RelayLogs": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/${RelayFunction}"
+        },
+        "RetentionInDays": 7
+      }
+    },
+    "RelayErrorAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "Namespace": "AWS/Lambda",
+        "MetricName": "Errors",
+        "Dimensions": [
+          {
+            "Name": "FunctionName",
+            "Value": {
+              "Ref": "RelayFunction"
+            }
+          }
+        ],
+        "Statistic": "Sum",
+        "Period": 60,
+        "EvaluationPeriods": 1,
+        "Threshold": 5,
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "TreatMissingData": "notBreaching"
+      }
+    },
+    "HintLogs": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/${HintFunction}"
+        },
+        "RetentionInDays": 7
+      }
+    },
+    "HintErrorAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "Namespace": "AWS/Lambda",
+        "MetricName": "Errors",
+        "Dimensions": [
+          {
+            "Name": "FunctionName",
+            "Value": {
+              "Ref": "HintFunction"
+            }
+          }
+        ],
+        "Statistic": "Sum",
+        "Period": 60,
+        "EvaluationPeriods": 1,
+        "Threshold": 5,
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "TreatMissingData": "notBreaching"
+      }
+    }
+  },
+  "Outputs": {
+    "WebSocketUrl": {
+      "Value": {
+        "Fn::Sub": "wss://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/test"
+      }
+    },
+    "HintUrl": {
+      "Value": {
+        "Fn::Sub": "https://${HintApi}.execute-api.${AWS::Region}.amazonaws.com/test/v1/hints"
+      }
+    },
+    "SessionTable": {
+      "Value": {
+        "Ref": "RelayTable"
+      }
+    }
+  }
+}

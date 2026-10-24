@@ -41,11 +41,10 @@ test-e2e:
 	@exit 1
 
 test-infra:
-	@echo "BLOCKED: CDK application and infrastructure tests are not implemented." >&2
-	@exit 1
+	$(PNPM) test:infra
 
 deploy:
-	@echo "BLOCKED: deployment is unavailable until infrastructure and native preflight exist." >&2
+	@echo "BLOCKED: deployment requires operator AWS/SAM preflight and explicit region/model parameters. See docs/backend-deployment.md." >&2
 	@exit 1
 
 evidence:

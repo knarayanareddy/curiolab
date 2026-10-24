@@ -103,3 +103,22 @@ it("exposes recoverable API errors without inventing a measurement", async () =>
   expect(document.querySelector(".result")).toBeNull();
   expect(document.getElementById("retry")).not.toBeNull();
 });
+it("Back opens a recoverable pause sheet without discarding committed measurements", async () => {
+  await mount({
+    ...initial,
+    stage: "COMPARISON",
+    flat: 3,
+    folded: 7,
+    comparison: "GREATER",
+  });
+  document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+  expect((document.getElementById("back-sheet") as HTMLElement).hidden).toBe(
+    false,
+  );
+  expect(document.querySelector("main")?.hasAttribute("inert")).toBe(true);
+  (document.getElementById("back-continue") as HTMLButtonElement).click();
+  expect((document.getElementById("back-sheet") as HTMLElement).hidden).toBe(
+    true,
+  );
+  expect(document.querySelector(".result")?.textContent).toContain("7 coins");
+});

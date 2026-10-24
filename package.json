@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "tsx scripts/walking-perception.ts && ./scripts/kotlin.sh run",
     "build": "tsc -p tsconfig.build.json && ./scripts/kotlin.sh build",
-    "lint": "eslint apps/firetv/src packages services scripts tests && prettier --check \"apps/firetv/src/**/*.ts\" \"packages/**/*.ts\" \"services/**/*.ts\" \"scripts/**/*.ts\" \"tests/**/*.ts\" \"*.{json,mjs}\"",
+    "lint": "eslint apps/firetv/src packages services scripts tests && prettier --check \"apps/firetv/src/**/*.ts\" \"packages/**/*.ts\" \"services/**/*.ts\" \"scripts/**/*.ts\" \"tests/**/*.ts\" \"infra/**/*.json\" \"*.{json,mjs}\"",
     "typecheck": "tsc --noEmit && ./scripts/kotlin.sh typecheck",
     "test:unit": "vitest run tests/unit && ./scripts/kotlin.sh test",
     "test:contract": "vitest run tests/contract",
@@ -18,13 +18,17 @@
     "validate:content": "tsx scripts/validate-content.ts",
     "dev:firetv": "./scripts/kotlin.sh build && tsx scripts/firetv-simulator.ts",
     "build:firetv": "vite build apps/firetv",
-    "smoke:firetv": "tsx scripts/firetv-smoke.ts"
+    "smoke:firetv": "tsx scripts/firetv-smoke.ts",
+    "build:backend": "tsx scripts/build-backends.ts",
+    "test:infra": "vitest run tests/infra",
+    "backend:test-session": "tsx scripts/provision-backend-test-session.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/node": "22.18.6",
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
+    "esbuild": "0.28.2",
     "eslint": "10.13.0",
     "jsdom": "26.1.0",
     "kotlin-compiler": "2.4.21",
@@ -39,5 +43,11 @@
     "onlyBuiltDependencies": [
       "esbuild"
     ]
+  },
+  "dependencies": {
+    "@aws-sdk/client-apigatewaymanagementapi": "3.1156.0",
+    "@aws-sdk/client-bedrock-runtime": "3.1156.0",
+    "@aws-sdk/client-dynamodb": "3.1156.0",
+    "@aws-sdk/lib-dynamodb": "3.1156.0"
   }
 }

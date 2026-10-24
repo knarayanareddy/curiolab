@@ -26,6 +26,42 @@ object EpisodeEngineTestSuite {
 
     @JvmStatic
     fun main(args: Array<String>) {
+        expect("remote directional/select/back intents ignore system voice and repeated activation") {
+            check(remoteIntent(19, true) == RemoteIntent.UP)
+            check(remoteIntent(20, true) == RemoteIntent.DOWN)
+            check(remoteIntent(21, true) == RemoteIntent.LEFT)
+            check(remoteIntent(22, true) == RemoteIntent.RIGHT)
+            check(remoteIntent(23, true) == RemoteIntent.SELECT)
+            check(remoteIntent(4, true) == RemoteIntent.BACK)
+            check(remoteIntent(23, true, 1) == null)
+            check(remoteIntent(19, false) == null)
+            check(remoteIntent(231, true) == null)
+        }
+        expect("voice maps only exact current-node synonyms with final confident scoped push to talk") {
+            val voice = VoiceTranscript("The folded one!", 0.9, true, "ptt1")
+            check(predictionVoiceOption(Trial.FLAT, voice, "ptt1") == "folded")
+            check(predictionVoiceOption(Trial.FOLDED, voice, "ptt1") == null)
+            check(predictionVoiceOption(Trial.FLAT, voice.copy(text = "flat or folded"), "ptt1") == null)
+            check(predictionVoiceOption(Trial.FLAT, voice.copy(confidence = 0.84), "ptt1") == null)
+            check(predictionVoiceOption(Trial.FLAT, voice.copy(confidence = Double.NaN), "ptt1") == null)
+            check(predictionVoiceOption(Trial.FLAT, voice.copy(isFinal = false), "ptt1") == null)
+            check(predictionVoiceOption(Trial.FLAT, voice, "other") == null)
+        }
+        expect("ambiguous voice leaves prediction unchanged and manual/remote remains available") {
+            val engine = EpisodeCoordinator()
+            val voice = VoiceTranscript("flat or folded", 0.95, true, "ptt1")
+            check(!engine.acceptVoicePrediction(voice, "ptt1"))
+            engine.begin(AdultPreflight(true, true, true, true))
+            check(!engine.acceptVoicePrediction(voice, "ptt1"))
+            check(engine.session.snapshot.stage == ManualStage.FLAT_PREDICTION)
+            check(engine.acceptVoicePrediction(voice.copy(text = "same"), "ptt1"))
+            check(engine.session.snapshot.episode.predictions[Trial.FLAT.predictionKey] == "same")
+            engine.markStop(Trial.FLAT, 4)
+            engine.confirm(Trial.FLAT, 4)
+            check(!engine.acceptVoicePrediction(voice.copy(text = "same"), "ptt1"))
+            engine.predict(Trial.FOLDED, "unsure")
+            check(engine.session.snapshot.stage == ManualStage.FOLDED_LAB)
+        }
         expect("adult preflight requires privacy and safety; analytics is optional") {
             val engine = EpisodeCoordinator()
             check(runCatching { engine.predict(Trial.FLAT, "unsure") }.isFailure)
