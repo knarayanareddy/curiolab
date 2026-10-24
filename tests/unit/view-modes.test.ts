@@ -60,7 +60,7 @@ it("seeks to each recorded scene, including a link clicked before metadata loads
   document.getElementById("scene-flat")!.click();
   expect(video.currentTime).toBe(0);
   Object.defineProperty(video, "readyState", { configurable: true, value: 1 });
-  Object.defineProperty(video, "duration", { configurable: true, value: 50 });
+  Object.defineProperty(video, "duration", { configurable: true, value: 200 });
   video.dispatchEvent(new Event("loadedmetadata"));
   const expectedFlat =
     recording.stages.find((item) => item.stage === "FLAT_LAB")!.at_ms / 1000;

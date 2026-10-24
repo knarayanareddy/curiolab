@@ -1,7 +1,15 @@
 import { defineConfig, type Plugin } from "vite";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 const videoPath = new URL(
   "../../docs/media/curiolab-demo.webm",
+  import.meta.url,
+);
+const mp4Path = new URL(
+  "../../docs/media/curiolab-demo.mp4",
+  import.meta.url,
+);
+const narrationPath = new URL(
+  "../../docs/media/curiolab-narration.mp3",
   import.meta.url,
 );
 function walkthroughMedia(): Plugin {
@@ -13,6 +21,20 @@ function walkthroughMedia(): Plugin {
         fileName: "media/curiolab-demo.webm",
         source: readFileSync(videoPath),
       });
+      if (existsSync(mp4Path)) {
+        this.emitFile({
+          type: "asset",
+          fileName: "media/curiolab-demo.mp4",
+          source: readFileSync(mp4Path),
+        });
+      }
+      if (existsSync(narrationPath)) {
+        this.emitFile({
+          type: "asset",
+          fileName: "media/curiolab-narration.mp3",
+          source: readFileSync(narrationPath),
+        });
+      }
     },
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
