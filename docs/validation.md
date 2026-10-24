@@ -2,6 +2,10 @@
 
 Recorded 2026-10-23 on the local vertical-slice branch. Evidence covers pure Kotlin/TypeScript source and fictional content only.
 
+## Latest simulator milestone (2026-10-24)
+
+See [`simulator-milestone.md`](./simulator-milestone.md) for preflight, Kotlin perception integration, relay/hint client and UI paths, protocols and remaining blockers. Full `make lint typecheck test-unit test-contract test-security` now passes with Java 17 (obtained through pinned PyPI jdk4py). Results: 49 TypeScript unit + 21 Kotlin + 10 contract + 1 security tests passed. The web build and running local HTTP → Kotlin smoke script also passed. One low transitive esbuild advisory remains; no moderate/high audit issues. This supersedes the previous sandbox Java blocker but does not imply native, accessibility or deployed AWS validation.
+
 ## Latest bundle-slice run (2026-10-23)
 
 See [`bundle-loader.md`](./bundle-loader.md) for FR-CL-001 implementation, test paths and blockers. Lint, strict TypeScript checking, 29 TypeScript unit tests and 7 contract tests passed. Full `make typecheck` and `make test-unit` are currently blocked at their Kotlin stages because this sandbox has no Java 17 runtime. No current Kotlin/device result is claimed. The table below is historical foundation evidence, not a rerun in this environment.
