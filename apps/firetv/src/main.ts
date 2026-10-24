@@ -1,3 +1,8 @@
+import { renderEpisodeScene } from "./scene";
+import {
+  EPISODE_STAGES,
+  type SimulatorState,
+} from "../../../packages/session-contracts/src/simulator-state";
 import { browserRemoteIntent } from "../../../packages/voice/src/push-to-talk";
 import {
   evaluateCalibration,
@@ -11,39 +16,18 @@ for (const [key, token] of Object.entries(tokens.color))
   document.documentElement.style.setProperty(`--${key}`, token.$value);
 const app = document.querySelector<HTMLDivElement>("#app")!;
 app.innerHTML = `<header><a href="/" class="brand">◒ <span>curio<span class="gold">lab</span></span></a><span class="pill">LOCAL TV SIMULATOR · KOTLIN ENGINE</span><span class="connection">● Manual play · no cloud</span></header>
-<main><aside><span class="eyebrow">EPISODE 01 · FAMILY SCIENCE</span><h1>The Bridge<br>to <span class="gold">Moon Base</span></h1><p class="intro">A small experiment.<br>A new way to see the world.</p><div class="mission" aria-hidden="true"><div class="moon"></div><div class="stars">✦ &nbsp; · &nbsp; ✧</div><div class="base">⌂</div><div class="bridge"></div><div class="hill"></div><span>MOON BASE / SUPPLY BRIDGE</span></div><div class="progress"><span id="step-label">MISSION CHECKLIST</span><div id="progress-bar"></div></div><p class="remote">↑ ↓ ← → Move &nbsp; · &nbsp; Enter Select<br>Tab also works. No timed actions.</p></aside>
+<main><aside><span class="eyebrow">EPISODE 01 · FAMILY SCIENCE</span><h1>The Bridge<br>to <span class="gold">Moon Base</span></h1><p class="intro">A small experiment.<br>A new way to see the world.</p><figure id="episode-canvas" class="episode-canvas" aria-labelledby="scene-caption"></figure><div class="progress"><span id="step-label">MISSION CHECKLIST</span><div id="progress-bar"></div></div><p class="remote">↑ ↓ ← → Move &nbsp; · &nbsp; Enter Select<br>Tab also works. No timed actions.</p></aside>
 <section class="panel" aria-labelledby="screen-title"><div class="panel-top"><span class="eyebrow" id="chapter">BEFORE WE BEGIN</span><span id="step">01 / 10</span></div><h2 id="screen-title" tabindex="-1">Adult launch checklist</h2><p id="description"></p><div id="content"></div><p id="error" role="alert"></p><div id="actions"></div><p class="caption" id="caption">An adult stays with the experiment. Every observation is confirmed by your family.</p></section></main><footer><span>DESIGNED FOR CURIOUS MINDS, AGES 7–11 + AN ADULT</span><button id="hint" class="subtle">Need a hint?</button><button id="restart" class="subtle">Clear this session</button></footer><div id="hint-text" role="status" class="hint" hidden></div>`;
 const el = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
-interface State {
-  stage: string;
-  sequence: number;
-  flat: number | null;
-  folded: number | null;
-  stopped: number | null;
-  comparison: string | null;
-  perception: string;
-  observed: number;
-}
-let state: State;
+let state: SimulatorState;
 let session = crypto.randomUUID();
 let busy = false;
 let count = 0;
 let camera = false;
 let frame = 0;
 const gateway = new ModelGateway();
-const stages = [
-  "SAFETY_AND_CONSENT",
-  "FLAT_PREDICTION",
-  "FLAT_LAB",
-  "FLAT_CONFIRMATION",
-  "FOLDED_PREDICTION",
-  "FOLDED_LAB",
-  "FOLDED_CONFIRMATION",
-  "COMPARISON",
-  "REFLECTION",
-  "COMPLETE",
-];
+const stages = EPISODE_STAGES;
 async function action(command: string, args: string[] = []) {
   if (busy) return;
   busy = true;
@@ -63,7 +47,9 @@ async function action(command: string, args: string[] = []) {
     const result = await response.json();
     if (result.error) throw new Error(result.error);
     if (command === "delete") return;
-    state = result as State;
+    state = result as SimulatorState;
+    if (state.accessibility_mode)
+      document.documentElement.dataset.motion = state.accessibility_mode;
     count = state.stopped ?? 0;
     render();
   } catch (error) {
@@ -83,6 +69,7 @@ async function action(command: string, args: string[] = []) {
     app.setAttribute("aria-busy", "false");
   }
 }
+export const refreshEpisode = () => action("state");
 function button(
   label: string,
   run: () => void,
@@ -162,6 +149,8 @@ function counter(label: string, initial: number) {
   update();
 }
 function render() {
+  renderEpisodeScene(el("episode-canvas"), state);
+  el("hint-text").hidden = true;
   el("content").replaceChildren();
   el("actions").replaceChildren();
   const index = stages.indexOf(state.stage);
@@ -454,7 +443,7 @@ el("back-clear").onclick = () => {
   closeBackSheet();
   el<HTMLButtonElement>("restart").click();
 };
-document.addEventListener("keydown", (event) => {
+function handleRemoteKeydown(event: KeyboardEvent) {
   const intent = browserRemoteIntent(event.key, event.repeat);
   if (!intent) {
     if (event.repeat && ["Enter", "Escape", "BrowserBack"].includes(event.key))
@@ -492,5 +481,10 @@ document.addEventListener("keydown", (event) => {
     (index + (intent === "up" || intent === "left" ? -1 : 1) + items.length) %
       items.length
   ]?.focus();
-});
+}
+document.addEventListener("keydown", handleRemoteKeydown);
+/** Unmount hook for host teardown and isolated DOM lifecycle tests. */
+export function disposeEpisodeUI(): void {
+  document.removeEventListener("keydown", handleRemoteKeydown);
+}
 void action("state");

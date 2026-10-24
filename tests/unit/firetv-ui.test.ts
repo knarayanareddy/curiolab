@@ -10,12 +10,13 @@ const initial = {
   perception: "NONE",
   observed: 0,
 };
+let disposeUI: (() => void) | undefined;
 async function mount(state: object = initial) {
   vi.resetModules();
   document.body.innerHTML = '<div id="app"></div>';
   const fetcher = vi.fn<typeof fetch>(async () => Response.json(state));
   vi.stubGlobal("fetch", fetcher);
-  await import("../../apps/firetv/src/main.js");
+  disposeUI = (await import("../../apps/firetv/src/main.js")).disposeEpisodeUI;
   await vi.waitFor(() =>
     expect(document.querySelector("#screen-title")?.textContent).not.toBe(""),
   );
@@ -28,6 +29,8 @@ async function mount(state: object = initial) {
   return fetcher;
 }
 afterEach(() => {
+  disposeUI?.();
+  disposeUI = undefined;
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
