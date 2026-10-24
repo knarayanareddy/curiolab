@@ -1,3 +1,4 @@
+import { mountViewModes } from "./view-modes";
 import { BrowserSimulator } from "../../../packages/testkit/src/browser-simulator";
 import { renderEpisodeScene } from "./scene";
 import {
@@ -40,6 +41,7 @@ if (sandbox) {
 }
 document.querySelector<HTMLAnchorElement>(".brand")!.href =
   import.meta.env.BASE_URL ?? "/";
+const disposeViewModes = mountViewModes(app, import.meta.env.BASE_URL ?? "/");
 let state: SimulatorState;
 let session = crypto.randomUUID();
 let busy = false;
@@ -435,7 +437,7 @@ function render() {
       );
       break;
   }
-  el("screen-title").focus();
+  if (!app.hidden) el("screen-title").focus();
 }
 el("hint").onclick = async () => {
   const hint = await gateway.hint({ nodeId: state.stage, attempt: 0 });
@@ -475,6 +477,11 @@ el("back-clear").onclick = () => {
   el<HTMLButtonElement>("restart").click();
 };
 function handleRemoteKeydown(event: KeyboardEvent) {
+  if (
+    app.hidden ||
+    (event.target instanceof Element && event.target.closest("#view-modes"))
+  )
+    return;
   const intent = browserRemoteIntent(event.key, event.repeat);
   if (!intent) {
     if (event.repeat && ["Enter", "Escape", "BrowserBack"].includes(event.key))
@@ -516,6 +523,7 @@ function handleRemoteKeydown(event: KeyboardEvent) {
 document.addEventListener("keydown", handleRemoteKeydown);
 /** Unmount hook for host teardown and isolated DOM lifecycle tests. */
 export function disposeEpisodeUI(): void {
+  disposeViewModes();
   document.removeEventListener("keydown", handleRemoteKeydown);
 }
 void action("state");

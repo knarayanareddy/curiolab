@@ -25,6 +25,8 @@ jobs:
           java-version: "17"
       - run: corepack enable && pnpm install --frozen-lockfile
       - run: pnpm typecheck && pnpm lint && pnpm vitest run && pnpm build
+      - name: Verify simulator and recording artifact
+        run: test -s build/pages/index.html && test -s build/pages/media/curiolab-demo.webm
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

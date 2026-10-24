@@ -16,7 +16,7 @@ docker compose exec -e RELAY_ORIGIN=http://session-relay:8080 -e CONTENT_ORIGIN=
 docker compose down
 ```
 
-`Dockerfile` installs Java 17, pinned pnpm dependencies and builds the actual JVM and Kotlin/JS engines. No host JDK is needed inside Compose. `.dockerignore` excludes secrets, private grants, caches, generated outputs and the video. No credentials or camera media are mounted. No production database volume is created.
+`Dockerfile` installs Java 17, pinned pnpm dependencies and builds the actual JVM and Kotlin/JS engines. No host JDK is needed inside Compose. `.dockerignore` excludes secrets, private grants, caches and generated outputs; only the explicit public walkthrough and its metadata are included from the media folder. No credentials or camera media are mounted. No production database volume is created.
 
 | Service | Host port | Behavior |
 | --- | --- | --- |
@@ -82,3 +82,15 @@ The supplied capture was made from **built Pages assets**, with Chromium **153.0
 - Required `pnpm typecheck && pnpm lint && pnpm vitest run && pnpm build`: **passed, 21 suites / 117 tests** (75 TypeScript unit, 37 contract, 4 infrastructure, 1 security). `make test-unit test-infra test-security` also passed, including **24 Kotlin tests**, with no known dependency vulnerabilities. `git diff --check` and all traceability path/ID checks passed.
 - Actual host-process service connectivity and static Chromium/offline journey checks passed; actual `.webm` capture exists.
 - Container build/up, Pages enablement/deployment, native Fire OS/CameraX, deployed AWS, physical protocol accuracy, signed approved content, native accessibility/performance and human reviews remain incomplete. Existing `make test-e2e`/native integration gates are not waived by a browser demo.
+
+## Embedded recorded / interactive view switch
+
+The sticky **View Mode** banner defaults to the interactive simulator. Selecting **Recorded 1080p Walkthrough** reveals the existing public capture with native play/pause/seek/fullscreen controls, 1x/1.25x/1.5x playback speeds, and approximate **Flat Bridge (~0:04)** / **Folded Bridge (~0:12)** scene links derived from the capture metadata. The visible description clarifies that **1080p refers to the captured viewport; the unchanged file is encoded at 720p**. Synthetic/browser provenance stays visible. WebM failures or blocked playback offer a download link and the interactive alternative; there is no forced autoplay before selection. The player fetches no video during default interactive play.
+
+Switching views pauses playback on return and preserves the actual episode DOM/session, predictions and confirmed measurements. Native video keys are not captured by simulator D-pad navigation; the banner supports directional focus and native keyboard activation. `index.html` also includes a no-JavaScript link to the recording.
+
+The Vite media plugin emits the exact original file at **`build/pages/media/curiolab-demo.webm`**, addressed as **`/curiolab/media/curiolab-demo.webm`**. It also serves the explicit recording URL during local dev. Docker's ignore list allows only this public capture and its metadata from the media folder; the dev server allowlist includes only the required metadata JSON. The Pages workflow now asserts that both `index.html` and the video exist before uploading the whole `build/pages` artifact. The build contract verifies the source/output SHA-256 match and deployment path. No duplicate video source or re-encoding is introduced.
+
+Unit coverage checks mode preservation, lazy loading, speed controls, pre-metadata scene seeking, directional focus, and playback failure recovery. This adds local build/DOM evidence, not a new live Pages deployment, browser codec audit or Fire OS release claim.
+
+Embedded-player verification: `pnpm build && pnpm vitest run` passed (**23 suites / 126 tests**), along with lint and strict TypeScript checking. The built preview served both the simulator and the exact source video with `video/webm` MIME, matching SHA-256 and HTTP 206 range requests. Live Pages deployment and browser codec/accessibility certification are not claimed.
