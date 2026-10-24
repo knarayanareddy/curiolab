@@ -28,7 +28,7 @@ page.on("pageerror", (error) => errors.push(error.message));
 try {
   await page.goto(url.href, { waitUntil: "networkidle", timeout: 30000 });
   const engine = await page.locator(".pill").textContent();
-  const result = await demoWalkthrough(page, 10500);
+  const result = await demoWalkthrough(page, 1200, 3, 7, "standard", true);
   if (errors.length) throw new Error(`Browser errors: ${errors.join("; ")}`);
   await context.close(); // Flush the actual browser capture before publishing.
   await video.saveAs(`${output}.pending.webm`);
@@ -51,7 +51,6 @@ try {
       "libopus",
       "-b:a",
       "128k",
-      "-shortest",
       output,
     ]);
     if (mux.status !== 0 || !existsSync(output)) {

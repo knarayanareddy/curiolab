@@ -1,6 +1,6 @@
 {
   "provenance": "synthetic-browser-demo-not-Fire-OS-or-physical-evidence",
-  "recorded_at": "2026-10-24T18:01:53.906Z",
+  "recorded_at": "2026-10-24T19:07:57.446Z",
   "browser": "156.0.8078.4",
   "engine": "LOCAL TV SIMULATOR · KOTLIN ENGINE",
   "viewport": "1920x1080",
@@ -11,44 +11,44 @@
   "stages": [
     {
       "stage": "SAFETY_AND_CONSENT",
-      "at_ms": 43
+      "at_ms": 269
     },
     {
       "stage": "FLAT_PREDICTION",
-      "at_ms": 10982
+      "at_ms": 73940
     },
     {
       "stage": "FLAT_LAB",
-      "at_ms": 21565
+      "at_ms": 85167
     },
     {
       "stage": "FLAT_CONFIRMATION",
-      "at_ms": 43140
+      "at_ms": 94422
     },
     {
       "stage": "FOLDED_PREDICTION",
-      "at_ms": 53860
+      "at_ms": 97679
     },
     {
       "stage": "FOLDED_LAB",
-      "at_ms": 64576
+      "at_ms": 102857
     },
     {
       "stage": "FOLDED_CONFIRMATION",
-      "at_ms": 86559
+      "at_ms": 116865
     },
     {
       "stage": "COMPARISON",
-      "at_ms": 97552
+      "at_ms": 120040
     },
     {
       "stage": "REFLECTION",
-      "at_ms": 108113
+      "at_ms": 124131
     },
     {
       "stage": "COMPLETE",
-      "at_ms": 118759
+      "at_ms": 127331
     }
   ],
-  "sha256": "adeac8459dd53cce3aa5e9a7a44c62c30347407cffb3605f6b224ac24c7e4f1e"
+  "sha256": "2fc593c3fea708847c54fa3c7c72e64bc84b027ae8823f350f3683000e7c22dc"
 }
