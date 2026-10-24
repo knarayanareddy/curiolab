@@ -1,0 +1,10 @@
+.git
+node_modules
+build
+dist
+coverage
+.env*
+.private
+.cache
+docs/media
+apps/firetv/src/generated/*.mjs

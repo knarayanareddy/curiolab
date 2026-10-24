@@ -1,3 +1,4 @@
+import { BrowserSimulator } from "../../../packages/testkit/src/browser-simulator";
 import { renderEpisodeScene } from "./scene";
 import {
   EPISODE_STAGES,
@@ -20,6 +21,25 @@ app.innerHTML = `<header><a href="/" class="brand">◒ <span>curio<span class="g
 <section class="panel" aria-labelledby="screen-title"><div class="panel-top"><span class="eyebrow" id="chapter">BEFORE WE BEGIN</span><span id="step">01 / 10</span></div><h2 id="screen-title" tabindex="-1">Adult launch checklist</h2><p id="description"></p><div id="content"></div><p id="error" role="alert"></p><div id="actions"></div><p class="caption" id="caption">An adult stays with the experiment. Every observation is confirmed by your family.</p></section></main><footer><span>DESIGNED FOR CURIOUS MINDS, AGES 7–11 + AN ADULT</span><button id="hint" class="subtle">Need a hint?</button><button id="restart" class="subtle">Clear this session</button></footer><div id="hint-text" role="status" class="hint" hidden></div>`;
 const el = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
+const sandbox =
+  import.meta.env.MODE === "pages" ||
+  new URLSearchParams(location.search).get("sandbox") === "1";
+// Lazy-load the actual compiled Kotlin core only for the explicit browser sandbox.
+const browserEngine = sandbox
+  ? import("./generated/engine.mjs").then(
+      (module) => new BrowserSimulator(module.simulatorRequest),
+    )
+  : undefined;
+if (sandbox) {
+  el("caption").textContent =
+    "BROWSER SANDBOX · Synthetic observations, not a physical experiment. Confirm counts to drive the story.";
+  document.querySelector(".pill")!.textContent =
+    "BROWSER SANDBOX · KOTLIN/JS · SYNTHETIC INPUT";
+  document.querySelector(".connection")!.textContent =
+    "In-memory · no server / camera / cloud";
+}
+document.querySelector<HTMLAnchorElement>(".brand")!.href =
+  import.meta.env.BASE_URL ?? "/";
 let state: SimulatorState;
 let session = crypto.randomUUID();
 let busy = false;
@@ -28,26 +48,36 @@ let camera = false;
 let frame = 0;
 const gateway = new ModelGateway();
 const stages = EPISODE_STAGES;
+async function requestServer(session: string, command: string, args: string[]) {
+  const response = await fetch("/api/episode", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ session, command, args }),
+    signal: AbortSignal.timeout(5000),
+  });
+  if (!response.ok)
+    throw new Error(
+      "The simulator is unavailable. Check the local server, then retry. Your last screen is unchanged.",
+    );
+  return response.json();
+}
 async function action(command: string, args: string[] = []) {
   if (busy) return;
   busy = true;
   el("error").textContent = "";
   app.setAttribute("aria-busy", "true");
   try {
-    const response = await fetch("/api/episode", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ session, command, args }),
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!response.ok)
-      throw new Error(
-        "The simulator is unavailable. Check the local server, then retry. Your last screen is unchanged.",
-      );
-    const result = await response.json();
-    if (result.error) throw new Error(result.error);
+    const result = browserEngine
+      ? await (await browserEngine).request(session, command, args)
+      : await requestServer(session, command, args);
+    if ("error" in result) throw new Error(result.error);
     if (command === "delete") return;
     state = result as SimulatorState;
+    if (state.local_services)
+      document.querySelector(".connection")!.textContent =
+        state.local_services.status === "ready"
+          ? "Local relay + draft content · no AWS"
+          : "Local relay offline · manual continues";
     if (state.accessibility_mode)
       document.documentElement.dataset.motion = state.accessibility_mode;
     count = state.stopped ?? 0;
@@ -178,7 +208,9 @@ function render() {
       );
       check(
         "privacy",
-        "I understand: no child account, name, raw video or continuous audio is collected. This local session lives in server memory until cleared or restarted.",
+        sandbox
+          ? "I understand: this is synthetic browser play, not a real camera or experiment. No child account, name, video or audio is collected. State stays in this tab until cleared or reloaded."
+          : "I understand: no child account, name, raw video or continuous audio is collected. This local session lives in server memory until cleared or restarted.",
       );
       check(
         "safety",
@@ -428,8 +460,7 @@ backSheet.hidden = true;
 backSheet.setAttribute("role", "dialog");
 backSheet.setAttribute("aria-modal", "true");
 backSheet.setAttribute("aria-labelledby", "back-title");
-backSheet.innerHTML =
-  '<section><h2 id="back-title">Pause here</h2><p>Your confirmed measurements stay unchanged while this local server is running.</p><button id="back-continue">Return to episode</button> <button id="back-clear" class="secondary">Clear this session</button></section>';
+backSheet.innerHTML = `<section><h2 id="back-title">Pause here</h2><p>Your confirmed measurements stay unchanged while ${sandbox ? "this tab stays open" : "this local server is running"}.</p><button id="back-continue">Return to episode</button> <button id="back-clear" class="secondary">Clear this session</button></section>`;
 app.append(backSheet);
 let returnFocus: HTMLElement | null = null;
 function closeBackSheet() {

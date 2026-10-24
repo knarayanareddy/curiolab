@@ -1,0 +1,54 @@
+{
+  "provenance": "synthetic-browser-demo-not-Fire-OS-or-physical-evidence",
+  "recorded_at": "2026-10-24T14:38:13.726Z",
+  "browser": "153.0.8010.0",
+  "engine": "BROWSER SANDBOX · KOTLIN/JS · SYNTHETIC INPUT",
+  "viewport": "1920x1080",
+  "video": "1280x720",
+  "flat": 3,
+  "folded": 7,
+  "branch": "GREATER",
+  "stages": [
+    {
+      "stage": "SAFETY_AND_CONSENT",
+      "at_ms": 40
+    },
+    {
+      "stage": "FLAT_PREDICTION",
+      "at_ms": 2151
+    },
+    {
+      "stage": "FLAT_LAB",
+      "at_ms": 3979
+    },
+    {
+      "stage": "FLAT_CONFIRMATION",
+      "at_ms": 8012
+    },
+    {
+      "stage": "FOLDED_PREDICTION",
+      "at_ms": 9893
+    },
+    {
+      "stage": "FOLDED_LAB",
+      "at_ms": 11726
+    },
+    {
+      "stage": "FOLDED_CONFIRMATION",
+      "at_ms": 16240
+    },
+    {
+      "stage": "COMPARISON",
+      "at_ms": 18141
+    },
+    {
+      "stage": "REFLECTION",
+      "at_ms": 19973
+    },
+    {
+      "stage": "COMPLETE",
+      "at_ms": 21865
+    }
+  ],
+  "sha256": "24eb1537920175f34c282aca7f7331db4593c31665fd28fdfc13a432383b4264"
+}

@@ -17,3 +17,8 @@ content/datasets/private/
 
 # Operator-only backend test grants; never persist secrets in Git.
 .private/
+
+# Reproducible Kotlin/JS browser build; declaration is tracked.
+apps/firetv/src/generated/*.mjs
+apps/firetv/src/generated/*.js
+apps/firetv/src/generated/*.map

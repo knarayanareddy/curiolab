@@ -1,9 +1,17 @@
+import { LocalServices } from "../services/simulator/src/local-services.js";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
 import { KotlinSimulatorEngine } from "../services/simulator/src/kotlin-engine.js";
 import { createServer as createViteServer } from "vite";
 
 const engine = new KotlinSimulatorEngine();
+if (!!process.env.RELAY_URL !== !!process.env.CONTENT_URL)
+  throw new Error("Set both RELAY_URL and CONTENT_URL for local orchestration");
+const local =
+  process.env.RELAY_URL && process.env.CONTENT_URL
+    ? new LocalServices(process.env.RELAY_URL, process.env.CONTENT_URL)
+    : undefined;
+await local?.ready();
 const vite = await createViteServer({
   root: "apps/firetv",
   server: {
@@ -17,6 +25,7 @@ const vite = await createViteServer({
         "packages/session-contracts",
         "packages/perception",
         "packages/voice",
+        "packages/testkit",
         "ui",
         "node_modules",
       ].map((path) => resolve(path)),
@@ -24,6 +33,7 @@ const vite = await createViteServer({
   },
   appType: "spa",
 });
+const commandIsDelete = (command: unknown) => command === "delete";
 const server = createServer(async (req, res) => {
   if (req.url === "/api/health") {
     res.writeHead(engine.ready ? 200 : 503, {
@@ -31,6 +41,13 @@ const server = createServer(async (req, res) => {
     });
     res.end(
       JSON.stringify({
+        services: local
+          ? {
+              status: local.status,
+              title: local.title,
+              provenance: "local-fixture",
+            }
+          : null,
         status: engine.ready ? "ready" : "unavailable",
         mode: "local-kotlin-simulator",
       }),
@@ -96,7 +113,32 @@ const server = createServer(async (req, res) => {
       value.command,
       value.args as string[],
     );
-    res.end(JSON.stringify(result));
+    if (commandIsDelete(value.command)) await local?.clear(value.session);
+    else if ("stage" in result) {
+      try {
+        await local?.publish(
+          value.session,
+          result,
+          value.command,
+          value.args as string[],
+        );
+      } catch {
+        if (local) local.status = "offline — manual episode still available";
+      }
+    }
+    res.end(
+      JSON.stringify(
+        local && "stage" in result
+          ? {
+              ...result,
+              local_services: {
+                status: local.status,
+                provenance: "local-fixture",
+              },
+            }
+          : result,
+      ),
+    );
   } catch {
     res.writeHead(400);
     res.end(
@@ -111,6 +153,7 @@ server.listen(5173, "0.0.0.0", () =>
 );
 for (const signal of ["SIGTERM", "SIGINT"] as const)
   process.on(signal, () => {
+    local?.close();
     engine.close();
     server.close();
     void vite.close();
