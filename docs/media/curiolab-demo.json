@@ -1,7 +1,7 @@
 {
   "provenance": "synthetic-browser-demo-not-Fire-OS-or-physical-evidence",
-  "recorded_at": "2026-10-24T14:38:13.726Z",
-  "browser": "153.0.8010.0",
+  "recorded_at": "2026-10-24T16:33:40.009Z",
+  "browser": "156.0.8078.4",
   "engine": "BROWSER SANDBOX · KOTLIN/JS · SYNTHETIC INPUT",
   "viewport": "1920x1080",
   "video": "1280x720",
@@ -11,44 +11,44 @@
   "stages": [
     {
       "stage": "SAFETY_AND_CONSENT",
-      "at_ms": 40
+      "at_ms": 36
     },
     {
       "stage": "FLAT_PREDICTION",
-      "at_ms": 2151
+      "at_ms": 3557
     },
     {
       "stage": "FLAT_LAB",
-      "at_ms": 3979
+      "at_ms": 6871
     },
     {
       "stage": "FLAT_CONFIRMATION",
-      "at_ms": 8012
+      "at_ms": 13749
     },
     {
       "stage": "FOLDED_PREDICTION",
-      "at_ms": 9893
+      "at_ms": 17037
     },
     {
       "stage": "FOLDED_LAB",
-      "at_ms": 11726
+      "at_ms": 20282
     },
     {
       "stage": "FOLDED_CONFIRMATION",
-      "at_ms": 16240
+      "at_ms": 27617
     },
     {
       "stage": "COMPARISON",
-      "at_ms": 18141
+      "at_ms": 30955
     },
     {
       "stage": "REFLECTION",
-      "at_ms": 19973
+      "at_ms": 34176
     },
     {
       "stage": "COMPLETE",
-      "at_ms": 21865
+      "at_ms": 37441
     }
   ],
-  "sha256": "24eb1537920175f34c282aca7f7331db4593c31665fd28fdfc13a432383b4264"
+  "sha256": "153525a47e27ad0f7661431cc9960d70ac819c914f375b50c3dd2551492626c5"
 }

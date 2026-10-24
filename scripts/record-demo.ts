@@ -28,14 +28,52 @@ page.on("pageerror", (error) => errors.push(error.message));
 try {
   await page.goto(url.href, { waitUntil: "networkidle", timeout: 30000 });
   const engine = await page.locator(".pill").textContent();
-  const result = await demoWalkthrough(page, 1800);
+  const result = await demoWalkthrough(page, 3200);
   if (errors.length) throw new Error(`Browser errors: ${errors.join("; ")}`);
   await context.close(); // Flush the actual browser capture before publishing.
   await video.saveAs(`${output}.pending.webm`);
   if ((await stat(`${output}.pending.webm`)).size < 1000)
     throw new Error("empty_demo_video");
   const { rename } = await import("node:fs/promises");
-  await rename(`${output}.pending.webm`, output);
+  const { existsSync } = await import("node:fs");
+  const { spawnSync } = await import("node:child_process");
+  const narration = resolve("docs/media/curiolab-narration.mp3");
+  if (existsSync(narration)) {
+    const mux = spawnSync("ffmpeg", [
+      "-y",
+      "-i",
+      `${output}.pending.webm`,
+      "-i",
+      narration,
+      "-c:v",
+      "copy",
+      "-c:a",
+      "libopus",
+      "-b:a",
+      "128k",
+      "-shortest",
+      output,
+    ]);
+    if (mux.status !== 0 || !existsSync(output)) {
+      await rename(`${output}.pending.webm`, output);
+    }
+  } else {
+    await rename(`${output}.pending.webm`, output);
+  }
+  spawnSync("ffmpeg", [
+    "-y",
+    "-i",
+    output,
+    "-c:v",
+    "libx264",
+    "-pix_fmt",
+    "yuv420p",
+    "-c:a",
+    "aac",
+    "-b:a",
+    "128k",
+    output.replace(/\.webm$/, ".mp4"),
+  ]);
   await writeFile(
     resolve("docs/media/curiolab-demo.json"),
     JSON.stringify(

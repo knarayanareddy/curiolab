@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from "vitest";
 import { mountViewModes } from "../../apps/firetv/src/view-modes.js";
+import recording from "../../docs/media/curiolab-demo.json";
 let dispose: (() => void) | undefined;
 afterEach(() => {
   dispose?.();
@@ -59,11 +60,15 @@ it("seeks to each recorded scene, including a link clicked before metadata loads
   document.getElementById("scene-flat")!.click();
   expect(video.currentTime).toBe(0);
   Object.defineProperty(video, "readyState", { configurable: true, value: 1 });
-  Object.defineProperty(video, "duration", { configurable: true, value: 24 });
+  Object.defineProperty(video, "duration", { configurable: true, value: 50 });
   video.dispatchEvent(new Event("loadedmetadata"));
-  expect(video.currentTime).toBeCloseTo(3.979);
+  const expectedFlat =
+    recording.stages.find((item) => item.stage === "FLAT_LAB")!.at_ms / 1000;
+  const expectedFolded =
+    recording.stages.find((item) => item.stage === "FOLDED_LAB")!.at_ms / 1000;
+  expect(video.currentTime).toBeCloseTo(expectedFlat);
   document.getElementById("scene-folded")!.click();
-  expect(video.currentTime).toBeCloseTo(11.726);
+  expect(video.currentTime).toBeCloseTo(expectedFolded);
 });
 it("offers a recovery when playback is blocked or the file is unsupported", async () => {
   const { video, record } = mount();
