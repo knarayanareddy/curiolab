@@ -60,7 +60,9 @@ export async function demoWalkthrough(
           ?.textContent?.includes(`observed ${expected}`),
       coins,
     );
-    await page.waitForTimeout(voiceoverSynced ? (isFolded ? 4000 : 5000) : holdMs);
+    await page.waitForTimeout(
+      voiceoverSynced ? (isFolded ? 4000 : 5000) : holdMs,
+    );
     await click("Adult: mark stop →");
   };
   await observe(flat, false);
